@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Pair } from '../pair';
 import { Framework } from '@vechain/connex-framework';
 import { Driver, SimpleNet } from '@vechain/connex-driver';
@@ -7,13 +7,12 @@ import { VexchangeV2FactoryABI } from '../../abi/VexchangeV2Factory';
 import { Pairs } from '../pairs';
 
 @Injectable()
-export class PairsService {
-  private pairs: Pairs;
+export class PairsService implements OnModuleInit {
+  private pairs: Pairs = {};
   private connex: Connex.Thor;
   private factoryContract: Connex.Thor.Account.Visitor;
 
-  async initialize(): Promise<void> {
-    this.pairs = {};
+  async onModuleInit(): Promise<void> {
     const net = new SimpleNet('https://mainnet.veblocks.net');
     const driver = await Driver.connect(net);
     this.connex = new Framework(driver).thor;

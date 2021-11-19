@@ -6,9 +6,7 @@ import { Pairs } from "../pairs";
 
 @Controller({ path: 'pairs', version: '1' })
 export class PairsController {
-  constructor(private readonly pairsService: PairsService) {
-    pairsService.initialize();
-  }
+  constructor(private readonly pairsService: PairsService) {}
 
   @Get()
   getPairs(): Pairs {
