@@ -4,15 +4,16 @@ import { Framework } from '@vechain/connex-framework';
 import { Driver, SimpleNet } from '@vechain/connex-driver';
 import { find } from 'lodash';
 import { VexchangeV2FactoryABI } from '../../abi/VexchangeV2Factory';
+import { Pairs } from '../pairs';
 
 @Injectable()
 export class PairsService {
-  private pairs: Pair[];
+  private pairs: Pairs;
   private connex: Connex.Thor;
   private factoryContract: Connex.Thor.Account.Visitor;
 
   async initialize(): Promise<void> {
-    this.pairs = [];
+    this.pairs = {};
     const net = new SimpleNet('https://mainnet.veblocks.net');
     const driver = await Driver.connect(net);
     this.connex = new Framework(driver).thor;
@@ -37,11 +38,15 @@ export class PairsService {
     for (let i = 0; i < numPairs; ++i) {
       const res = await method.call(i);
       const pairAddress = res.decoded[0];
-      this.pairs.push(new Pair(pairAddress, '', '', 0));
+      this.pairs[pairAddress] = new Pair(pairAddress, '', '', 0);
     }
   }
 
-  get(): Pair[] {
+  getAll(): Pairs {
     return this.pairs;
+  }
+
+  getPair(pairAddress: string): Pair {
+    return this.pairs[pairAddress];
   }
 }
