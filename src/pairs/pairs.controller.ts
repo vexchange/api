@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Res } from "@nestjs/common";
+import { BadRequestException, Controller, Get, HttpStatus, Param, Res } from "@nestjs/common";
 import { Pair } from '../pair';
 import { PairsService } from './pairs.service';
 import { isAddress } from "ethers/lib/utils";
@@ -25,7 +25,7 @@ export class PairsController {
     // else if (params.query.contains()) {}
     else {
       // Return HTTP 400
-      throw HttpStatus.BAD_REQUEST;
+      throw new BadRequestException('Pair does not exist');
     }
   }
 }
