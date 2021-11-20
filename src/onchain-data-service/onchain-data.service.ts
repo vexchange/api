@@ -7,7 +7,7 @@ import { VexchangeV2FactoryABI } from '../../abi/VexchangeV2Factory';
 import { Pairs } from '../pairs';
 
 @Injectable()
-export class PairsService implements OnModuleInit {
+export class OnchainDataService implements OnModuleInit {
   private pairs: Pairs = {};
   private connex: Connex.Thor;
   private factoryContract: Connex.Thor.Account.Visitor;
@@ -25,6 +25,9 @@ export class PairsService implements OnModuleInit {
   }
 
   async fetch(): Promise<void> {
+    /**
+     * TODO: To decide whether to pull directly from chain or to use sdk
+     */
     const allPairsLengthABI = find(VexchangeV2FactoryABI, {
       name: 'allPairsLength',
     });
@@ -34,6 +37,9 @@ export class PairsService implements OnModuleInit {
     const allPairs = find(VexchangeV2FactoryABI, { name: 'allPairs' });
     method = this.factoryContract.method(allPairs);
 
+    /**
+     * TODO: Make parallel and asynchronous
+     */
     for (let i = 0; i < numPairs; ++i) {
       const res = await method.call(i);
       const pairAddress = res.decoded[0];

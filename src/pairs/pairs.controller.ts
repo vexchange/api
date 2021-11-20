@@ -1,12 +1,12 @@
 import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
 import { Pair } from '../pair';
-import { PairsService } from './pairs.service';
+import { OnchainDataService } from '../onchain-data-service/onchain-data.service';
 import { isAddress } from "ethers/lib/utils";
 import { Pairs } from "../pairs";
 
 @Controller({ path: 'pairs', version: '1' })
 export class PairsController {
-  constructor(private readonly pairsService: PairsService) {}
+  constructor(private readonly pairsService: OnchainDataService) {}
 
   @Get()
   getPairs(): Pairs {
