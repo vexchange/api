@@ -17,6 +17,12 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["@vechain/connex", "jest"]
+    "types": ["@vechain/connex", "jest"],
+    "paths": {
+      "@src/*": ["src/*"],
+      "@services/*": ["src/services/*"],
+      "@test/*": ["test/*"],
+      "@root/*": ["./*"]
+    }
   }
 }

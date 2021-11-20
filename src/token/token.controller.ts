@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from "@nestjs/common";
 import { Token } from "../token";
 import { isAddress } from "ethers/lib/utils";
-import { OnchainDataService } from "../onchain-data-service/onchain-data.service";
+import { OnchainDataService } from '@services/onchain-data.service';
 import { Pairs } from "../pairs";
 
 @Controller({ path: 'tokens', version: '1' })

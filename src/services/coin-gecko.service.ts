@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 // import CoinGecko from 'coingecko-api';
+// Somehow could not resolve with import
 const CoinGecko = require('coingecko-api');
 
 @Injectable()
