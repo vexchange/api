@@ -6,17 +6,17 @@ import { Pairs } from "../pairs";
 
 @Controller({ path: 'pairs', version: '1' })
 export class PairsController {
-  constructor(private readonly pairsService: OnchainDataService) {}
+  constructor(private readonly onchainDataService: OnchainDataService) {}
 
   @Get()
   getPairs(): Pairs {
-    return this.pairsService.getAll();
+    return this.onchainDataService.getAllPairs();
   }
 
   @Get(':query')
   getFromPairAddress(@Param() params): Pair {
     if (isAddress(params.query)) {
-      const pair = this.pairsService.getPair(params.query);
+      const pair = this.onchainDataService.getPair(params.query);
 
       if (pair) return pair;
       else throw new NotFoundException('Pair does not exist');

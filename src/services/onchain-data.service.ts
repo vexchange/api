@@ -29,9 +29,6 @@ export class OnchainDataService implements OnModuleInit {
   }
 
   async fetch(): Promise<void> {
-    /**
-     * TODO: To decide whether to pull directly from chain or to use sdk
-     */
     const allPairsLengthABI = find(VexchangeV2FactoryABI, {
       name: 'allPairsLength',
     });
@@ -77,14 +74,29 @@ export class OnchainDataService implements OnModuleInit {
       await this.connex.thor.account(address).method(symbolABI).call()
     ).decoded[0];
 
-    return new Token(name, symbol, address, 0);
+    const token = new Token(name, symbol, address, 0);
+
+    // Add to the tokens collection if it doesn't yet exist
+    if (!(address in this.tokens)) {
+      this.tokens[address] = token;
+    }
+
+    return token;
   }
 
-  getAll(): Pairs {
+  getAllPairs(): Pairs {
     return this.pairs;
   }
 
   getPair(pairAddress: string): Pair {
     return this.pairs[pairAddress];
+  }
+
+  getAllTokens(): Tokens {
+    return this.tokens;
+  }
+
+  getToken(tokenAddress: string): Token {
+    return this.tokens[tokenAddress];
   }
 }
