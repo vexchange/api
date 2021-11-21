@@ -22,6 +22,7 @@
       "@src/*": ["src/*"],
       "@controllers/*": ["src/controllers/*"],
       "@services/*": ["src/services/*"],
+      "@abi/*": ["abi/*"],
       "@test/*": ["test/*"],
       "@root/*": ["./*"]
     }

@@ -1,4 +1,3 @@
-import { TokenVolume } from "@src/token-volume";
 import { Token } from "@src/token";
 import { BigNumber } from "ethers";
 
