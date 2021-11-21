@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TokenController } from './token/token.controller';
-import { PairsController } from './pairs/pairs.controller';
+import { TokenController } from '@controllers/token.controller';
+import { PairsController } from '@controllers/pairs.controller';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { CoinGeckoService } from '@services/coin-gecko.service';
 

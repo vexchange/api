@@ -20,6 +20,7 @@
     "types": ["@vechain/connex", "jest"],
     "paths": {
       "@src/*": ["src/*"],
+      "@controllers/*": ["src/controllers/*"],
       "@services/*": ["src/services/*"],
       "@test/*": ["test/*"],
       "@root/*": ["./*"]

@@ -7,6 +7,7 @@ async function bootstrap() {
 
   app.enableVersioning({
     // For v1/v2 within the request url
+    // For future proofing
     type: VersioningType.URI,
   });
 
