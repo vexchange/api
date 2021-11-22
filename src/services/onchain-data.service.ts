@@ -1,15 +1,13 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
-import { Pair } from "../pair";
+import { Pair, Pairs } from "../pair";
 import { Framework } from "@vechain/connex-framework";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
 import { find } from "lodash";
 import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
 import { IERC20ABI } from "../../abi/IERC20";
-import { Pairs } from "../pairs";
 import { FACTORY_ADDRESS } from "vexchange-sdk";
-import { Tokens } from "@src/tokens";
-import { Token } from "@src/token";
+import { Token, Tokens } from "@src/token";
 import { BigNumber } from "ethers";
 import { formatEther } from "ethers/lib/utils";
 
@@ -88,6 +86,7 @@ export class OnchainDataService implements OnModuleInit {
     else {
       const nameABI = find(IERC20ABI, { name: 'name' });
       const symbolABI = find(IERC20ABI, { name: 'symbol' });
+      const decimalsABI = find(IERC20ABI, { name: 'decimals' });
 
       const name = (
         await this.connex.thor.account(address).method(nameABI).call()
@@ -97,7 +96,11 @@ export class OnchainDataService implements OnModuleInit {
         await this.connex.thor.account(address).method(symbolABI).call()
       ).decoded[0];
 
-      const token = new Token(name, symbol, address, 0);
+      const decimals = (
+        await this.connex.thor.account(address).method(decimalsABI).call()
+      ).decoded[0];
+
+      const token = new Token(name, symbol, address, 0, parseInt(decimals));
 
       this.tokens[address] = token;
       return token;

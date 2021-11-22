@@ -25,3 +25,8 @@ export class Pair {
   readonly token0Reserve: BigNumber;
   readonly token1Reserve: BigNumber;
 }
+
+export class Pairs {
+  [key: string]: Pair;
+}
+

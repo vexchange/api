@@ -1,8 +1,7 @@
 import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
-import { Token } from "../token";
+import { Token, Tokens } from "../token";
 import { isAddress } from "ethers/lib/utils";
 import { OnchainDataService } from '@services/onchain-data.service';
-import { Tokens } from "@src/tokens";
 
 @Controller({ path: 'tokens', version: '1' })
 export class TokenController {

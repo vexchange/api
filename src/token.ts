@@ -6,7 +6,7 @@ export class Token {
     aSymbol,
     aContractAddress,
     aUsdPrice,
-    // aDecimals,
+    aDecimals,
     // aCirculatingSupply,
     // aTotalSupply,
   ) {
@@ -14,7 +14,7 @@ export class Token {
     this.symbol = aSymbol;
     this.contractAddress = aContractAddress;
     this.usdPrice = aUsdPrice;
-    // this.decimals = aDecimals;
+    this.decimals = aDecimals;
     // this.circulatingSupply = aCirculatingSupply;
     // this.totalSupply = aTotalSupply;
   }
@@ -23,7 +23,11 @@ export class Token {
   readonly symbol: string;
   readonly contractAddress: string;
   readonly usdPrice: BigNumber;
-  // readonly decimals: number;
+  readonly decimals: number;
   // readonly circulatingSupply: BigNumber;
   // readonly totalSupply: BigNumber;
+}
+
+export class Tokens {
+  [key: string]: Token;
 }
