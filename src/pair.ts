@@ -9,6 +9,8 @@ export class Pair {
     aPrice: string,
     aToken0Reserve: BigNumber,
     aToken1Reserve: BigNumber,
+    aToken0Vol: string,
+    aToken1Vol: string,
   ) {
     this.address = aAddress;
     this.token0 = aToken0;
@@ -16,6 +18,8 @@ export class Pair {
     this.price = aPrice;
     this.token0Reserve = aToken0Reserve;
     this.token1Reserve = aToken1Reserve;
+    this.token0Volume = aToken0Vol;
+    this.token1Volume = aToken1Vol;
   }
 
   readonly address: string;
@@ -24,6 +28,8 @@ export class Pair {
   readonly price: string;
   readonly token0Reserve: BigNumber;
   readonly token1Reserve: BigNumber;
+  readonly token0Volume: string;
+  readonly token1Volume: string;
 }
 
 export class Pairs {

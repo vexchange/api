@@ -47,6 +47,7 @@ export class OnchainDataService implements OnModuleInit {
     const token0ABI = find(VexchangeV2PairABI, { name: 'token0' });
     const token1ABI = find(VexchangeV2PairABI, { name: 'token1' });
     const getReservesABI = find(VexchangeV2PairABI, { name: 'getReserves' });
+    const swapEventABI = find(VexchangeV2PairABI, { name: 'Swap' });
 
     /**
      * TODO: Make parallel and asynchronous
@@ -74,6 +75,39 @@ export class OnchainDataService implements OnModuleInit {
         .mul(parseUnits('1')) // For added precision for BigNumber arithmetic
         .div(parseUnits(reserve1, 18 - token1.decimals));
 
+      const swapEvent = pairContract.event(swapEventABI);
+
+      const swapFilter = swapEvent.filter([]).range({
+        unit: 'block',
+        from: this.connex.thor.status.head.number - 8640, // Since every block is 10s
+        to: this.connex.thor.status.head.number, // Current block number
+      });
+
+      let end = false;
+      let offset = 0;
+      const limit = 256;
+
+      let accToken0Volume = ethers.constants.Zero;
+      let accToken1Volume = ethers.constants.Zero;
+
+      // Need a while loop because we can only get
+      // up to 256 events each round using connex
+      while (!end) {
+        const result = await swapFilter.apply(offset, limit);
+
+        for (const transaction of result) {
+          accToken0Volume = accToken0Volume
+            .add(transaction.decoded.amount0In)
+            .add(transaction.decoded.amount0Out);
+          accToken1Volume = accToken1Volume
+            .add(transaction.decoded.amount1In)
+            .add(transaction.decoded.amount1Out);
+        }
+
+        if (result.length === limit) offset += limit;
+        else end = true;
+      }
+
       this.pairs[pairAddress] = new Pair(
         pairAddress,
         token0,
@@ -81,6 +115,8 @@ export class OnchainDataService implements OnModuleInit {
         formatEther(price),
         BigNumber.from(reserve0),
         BigNumber.from(reserve1),
+        formatEther(accToken0Volume),
+        formatEther(accToken1Volume),
       );
     }
   }
