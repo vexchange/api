@@ -8,5 +8,6 @@ import { CoinGeckoService } from '@services/coin-gecko.service';
   imports: [],
   controllers: [PairsController, TokenController],
   providers: [OnchainDataService, CoinGeckoService],
+  exports: [],
 })
 export class AppModule {}

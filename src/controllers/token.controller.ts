@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  BadRequestException,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { Token, Tokens } from "../token";
 import { isAddress } from "ethers/lib/utils";
 import { OnchainDataService } from '@services/onchain-data.service';

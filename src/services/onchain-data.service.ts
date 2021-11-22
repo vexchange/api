@@ -1,15 +1,16 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { Pair, Pairs } from "../pair";
 import { Framework } from "@vechain/connex-framework";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
 import { find } from "lodash";
 import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
-import { IERC20ABI } from "../../abi/IERC20";
+import { IERC20ABI } from "@abi/IERC20";
 import { FACTORY_ADDRESS } from "vexchange-sdk";
 import { Token, Tokens } from "@src/token";
-import { BigNumber } from "ethers";
-import { formatEther } from "ethers/lib/utils";
+import { BigNumber, ethers } from "ethers";
+import { formatEther, parseUnits } from "ethers/lib/utils";
+import { CoinGeckoService } from "@services/coin-gecko.service";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -17,6 +18,11 @@ export class OnchainDataService implements OnModuleInit {
   private tokens: Tokens = {};
   private connex: Connex;
   private factoryContract: Connex.Thor.Account.Visitor;
+
+  constructor(
+    @Inject(forwardRef(() => CoinGeckoService))
+    private readonly coingeckoService: CoinGeckoService,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     const net = new SimpleNet('https://mainnet.veblocks.net');
@@ -63,10 +69,10 @@ export class OnchainDataService implements OnModuleInit {
         await pairContract.method(getReservesABI).call()
       ).decoded;
 
-      // TODO: Validate if this math works for coins that don't have 18dp
-      const price = BigNumber.from(reserve1)
-        .mul('1000000000000000000') // For precision for BigNumber arithmetic
-        .div(reserve0);
+      // Accounts for tokens with different decimal places
+      const price = parseUnits(reserve0, 18 - token0.decimals)
+        .mul(parseUnits('1')) // For added precision for BigNumber arithmetic
+        .div(parseUnits(reserve1, 18 - token1.decimals));
 
       this.pairs[pairAddress] = new Pair(
         pairAddress,
@@ -100,7 +106,16 @@ export class OnchainDataService implements OnModuleInit {
         await this.connex.thor.account(address).method(decimalsABI).call()
       ).decoded[0];
 
-      const token = new Token(name, symbol, address, 0, parseInt(decimals));
+      let price = null;
+      if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
+
+      const token = new Token(
+        name,
+        symbol,
+        address,
+        price,
+        parseInt(decimals),
+      );
 
       this.tokens[address] = token;
       return token;

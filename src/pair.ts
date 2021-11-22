@@ -29,4 +29,3 @@ export class Pair {
 export class Pairs {
   [key: string]: Pair;
 }
-

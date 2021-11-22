@@ -11,6 +11,7 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  app.enableShutdownHooks();
   await app.listen(3000);
 }
 bootstrap();
