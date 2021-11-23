@@ -11,6 +11,7 @@ import { Token, Tokens } from "@src/token";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { CoinGeckoService } from "@services/coin-gecko.service";
+import { Interval } from "@nestjs/schedule";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -34,7 +35,9 @@ export class OnchainDataService implements OnModuleInit {
     this.fetch();
   }
 
+  @Interval(60000)
   async fetch(): Promise<void> {
+    console.log("called")
     const allPairsLengthABI = find(VexchangeV2FactoryABI, {
       name: 'allPairsLength',
     });
@@ -79,8 +82,10 @@ export class OnchainDataService implements OnModuleInit {
 
       const swapFilter = swapEvent.filter([]).range({
         unit: 'block',
-        from: this.connex.thor.status.head.number - 8640, // Since every block is 10s
-        to: this.connex.thor.status.head.number, // Current block number
+        // Since every block is 10s, 8640 blocks will be 24h
+        from: this.connex.thor.status.head.number - 8640,
+        // Current block number
+        to: this.connex.thor.status.head.number,
       });
 
       let end = false;
@@ -108,16 +113,25 @@ export class OnchainDataService implements OnModuleInit {
         else end = true;
       }
 
-      this.pairs[pairAddress] = new Pair(
-        pairAddress,
-        token0,
-        token1,
-        formatEther(price),
-        BigNumber.from(reserve0),
-        BigNumber.from(reserve1),
-        formatEther(accToken0Volume),
-        formatEther(accToken1Volume),
-      );
+      if (pairAddress in this.pairs) {
+        this.pairs[pairAddress].setPrice(formatEther(price));
+        this.pairs[pairAddress].setToken0Reserve(BigNumber.from(reserve0));
+        this.pairs[pairAddress].setToken1Reserve(BigNumber.from(reserve1));
+        this.pairs[pairAddress].setToken0Volume(formatEther(accToken0Volume));
+        this.pairs[pairAddress].setToken1Volume(formatEther(accToken1Volume));
+      }
+      else {
+        this.pairs[pairAddress] = new Pair(
+          pairAddress,
+          token0,
+          token1,
+          formatEther(price),
+          BigNumber.from(reserve0),
+          BigNumber.from(reserve1),
+          formatEther(accToken0Volume),
+          formatEther(accToken1Volume),
+        );
+      }
     }
   }
 
