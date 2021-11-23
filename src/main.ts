@@ -1,13 +1,18 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { VersioningType } from "@nestjs/common";
+import { NestFactory } from '@nestjs/core';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import { AppModule } from './app.module';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
 
   app.enableVersioning({
-    // For v1/v2 within the request url
-    // For future proofing
     type: VersioningType.URI,
   });
 
