@@ -37,7 +37,6 @@ export class OnchainDataService implements OnModuleInit {
 
   @Interval(60000)
   async fetch(): Promise<void> {
-    console.log("called")
     const allPairsLengthABI = find(VexchangeV2FactoryABI, {
       name: 'allPairsLength',
     });
