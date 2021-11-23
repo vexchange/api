@@ -135,36 +135,31 @@ export class OnchainDataService implements OnModuleInit {
   }
 
   async fetchToken(address: string): Promise<Token> {
+    const nameABI = find(IERC20ABI, { name: 'name' });
+    const symbolABI = find(IERC20ABI, { name: 'symbol' });
+    const decimalsABI = find(IERC20ABI, { name: 'decimals' });
+
+    const symbol = (
+      await this.connex.thor.account(address).method(symbolABI).call()
+    ).decoded[0];
+
+    let price = null;
+    if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
+
     if (address in this.tokens) {
+      this.tokens[address].setUsdPrice(price);
       return this.tokens[address];
     }
     else {
-      const nameABI = find(IERC20ABI, { name: 'name' });
-      const symbolABI = find(IERC20ABI, { name: 'symbol' });
-      const decimalsABI = find(IERC20ABI, { name: 'decimals' });
-
       const name = (
         await this.connex.thor.account(address).method(nameABI).call()
-      ).decoded[0];
-
-      const symbol = (
-        await this.connex.thor.account(address).method(symbolABI).call()
       ).decoded[0];
 
       const decimals = (
         await this.connex.thor.account(address).method(decimalsABI).call()
       ).decoded[0];
 
-      let price = null;
-      if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
-
-      const token = new Token(
-        name,
-        symbol,
-        address,
-        price,
-        parseInt(decimals),
-      );
+      const token = new Token(name, symbol, address, price, parseInt(decimals));
 
       this.tokens[address] = token;
       return token;
