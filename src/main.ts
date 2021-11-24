@@ -7,7 +7,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
-import * as fs from 'fs'
+import { writeFileSync } from 'fs'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -21,7 +21,7 @@ async function bootstrap() {
     .addServer('v1')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  fs.writeFileSync("./swagger-spec.json", JSON.stringify(document));
+  writeFileSync("./swagger-spec.json", JSON.stringify(document));
   SwaggerModule.setup('/', app, document);
 
   app.enableVersioning({
