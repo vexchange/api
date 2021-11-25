@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Pair, Pairs } from '../pair';
 import { OnchainDataService } from '@services/onchain-data.service';
-import { isAddress } from "ethers/lib/utils";
+import { isAddress } from 'ethers/lib/utils';
 import { ApiTags } from '@nestjs/swagger';
 import { GetPairFromAddressDto } from '../dto/get-pair-from-address.dto';
 

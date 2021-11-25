@@ -3,11 +3,13 @@ import { TokenController } from '@controllers/token.controller';
 import { PairsController } from '@controllers/pairs.controller';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { CoinGeckoService } from '@services/coin-gecko.service';
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     ThrottlerModule.forRoot({
       // This means that the user can only make
       // 10 queries per 60 seconds

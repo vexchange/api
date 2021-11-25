@@ -5,8 +5,8 @@ import {
   NotFoundException,
   Param,
 } from '@nestjs/common';
-import { Token, Tokens } from "../token";
-import { isAddress } from "ethers/lib/utils";
+import { Token, Tokens } from '../token';
+import { isAddress } from 'ethers/lib/utils';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { ApiTags } from '@nestjs/swagger';
 import { GetTokenFromAddressDto } from '../dto/get-token-from-address.dto';

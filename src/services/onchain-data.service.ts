@@ -1,16 +1,16 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { Pair, Pairs } from "../pair";
-import { Framework } from "@vechain/connex-framework";
-import { Driver, SimpleNet } from "@vechain/connex-driver";
-import { find } from "lodash";
-import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
-import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
-import { IERC20ABI } from "@abi/IERC20";
-import { FACTORY_ADDRESS } from "vexchange-sdk";
-import { Token, Tokens } from "@src/token";
-import { BigNumber, ethers } from "ethers";
-import { formatEther, parseUnits } from "ethers/lib/utils";
-import { CoinGeckoService } from "@services/coin-gecko.service";
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Pair, Pairs } from '@src/pair';
+import { Framework } from '@vechain/connex-framework';
+import { Driver, SimpleNet } from '@vechain/connex-driver';
+import { find } from 'lodash';
+import { VexchangeV2FactoryABI } from '@abi/VexchangeV2Factory';
+import { VexchangeV2PairABI } from '@abi/VexchangeV2Pair';
+import { IERC20ABI } from '@abi/IERC20';
+import { FACTORY_ADDRESS } from 'vexchange-sdk';
+import { Token, Tokens } from '@src/token';
+import { BigNumber, ethers } from 'ethers';
+import { formatEther, parseUnits } from 'ethers/lib/utils';
+import { CoinGeckoService } from '@services/coin-gecko.service';
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -124,8 +124,7 @@ export class OnchainDataService implements OnModuleInit {
   async fetchToken(address: string): Promise<Token> {
     if (address in this.tokens) {
       return this.tokens[address];
-    }
-    else {
+    } else {
       const nameABI = find(IERC20ABI, { name: 'name' });
       const symbolABI = find(IERC20ABI, { name: 'symbol' });
       const decimalsABI = find(IERC20ABI, { name: 'decimals' });
@@ -145,13 +144,7 @@ export class OnchainDataService implements OnModuleInit {
       let price = null;
       if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
 
-      const token = new Token(
-        name,
-        symbol,
-        address,
-        price,
-        parseInt(decimals),
-      );
+      const token = new Token(name, symbol, address, price, parseInt(decimals));
 
       this.tokens[address] = token;
       return token;

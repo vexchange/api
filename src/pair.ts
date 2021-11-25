@@ -1,5 +1,5 @@
-import { Token } from "@src/token";
-import { BigNumber } from "ethers";
+import { Token } from '@src/token';
+import { BigNumber } from 'ethers';
 
 export class Pair {
   constructor(
