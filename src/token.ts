@@ -18,8 +18,16 @@ export class Token {
   readonly name: string;
   readonly symbol: string;
   readonly contractAddress: string;
-  readonly usdPrice: BigNumber;
+  private usdPrice: number;
   readonly decimals: number;
+
+  public getUsdPrice(): number {
+    return this.usdPrice;
+  }
+
+  public setUsdPrice(aNewUsdPrice: number): void {
+    this.usdPrice = aNewUsdPrice;
+  }
 }
 
 export class Tokens {
