@@ -5,9 +5,11 @@ import { OnchainDataService } from '@services/onchain-data.service';
 import { CoinGeckoService } from '@services/coin-gecko.service';
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
+    // For rate limiting
     ThrottlerModule.forRoot({
       // This means that the user can only make
       // 10 queries per 60 seconds
@@ -15,6 +17,8 @@ import { APP_GUARD } from "@nestjs/core";
       ttl: 60,
       limit: 10,
     }),
+    // For scheduling recurring tasks
+    ScheduleModule.forRoot(),
   ],
   controllers: [PairsController, TokenController],
   providers: [

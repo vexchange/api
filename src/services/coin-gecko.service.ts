@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Interval } from "@nestjs/schedule";
 // import CoinGecko from 'coingecko-api';
 // Somehow could not resolve with import, no matter what I do
 const CoinGecko = require('coingecko-api');
@@ -13,6 +14,7 @@ export class CoinGeckoService implements OnModuleInit {
     this.fetch();
   }
 
+  @Interval(60000)
   async fetch(): Promise<void> {
     this.vetPrice = (
       await this.client.simple.price({
