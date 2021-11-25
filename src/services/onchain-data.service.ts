@@ -18,13 +18,28 @@ export class OnchainDataService implements OnModuleInit
 {
     private pairs: Pairs = {};
     private tokens: Tokens = {};
-    private connex: Connex;
-    private factoryContract: Connex.Thor.Account.Visitor;
+    private mConnex: Connex | undefined = undefined;
+    private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
 
     public constructor(
     @Inject(forwardRef(() => CoinGeckoService))
     private readonly coingeckoService: CoinGeckoService,
     ) {}
+
+    private get Connex(): Connex
+    {
+        if (this.mConnex === undefined) { throw new Error("Connex not initialised"); }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.mConnex!;
+    }
+
+    private get FactoryContract(): Connex.Thor.Account.Visitor
+    {
+        if (this.mFactoryContract === undefined) { throw new Error("FactoryContract not initialised"); }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.mFactoryContract!;
+    }
+
 
     @Interval(60000)
     private async fetch(): Promise<void>
@@ -32,11 +47,11 @@ export class OnchainDataService implements OnModuleInit
         const allPairsLengthABI: object = find(VexchangeV2FactoryABI, {
             name: "allPairsLength",
         });
-        let method: Connex.Thor.Account.Method = this.factoryContract.method(allPairsLengthABI);
+        let method: Connex.Thor.Account.Method = this.FactoryContract.method(allPairsLengthABI);
         const numPairs: number = parseInt((await method.call()).decoded[0]);
 
         const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
-        method = this.factoryContract.method(allPairs);
+        method = this.FactoryContract.method(allPairs);
 
         const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
         const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
@@ -50,7 +65,7 @@ export class OnchainDataService implements OnModuleInit
         {
             const res: Connex.VM.Output & Connex.Thor.Account.WithDecoded = await method.call(i);
             const pairAddress: string = res.decoded[0];
-            const pairContract: Connex.Thor.Account.Visitor = this.connex.thor.account(pairAddress);
+            const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
 
             const token0Address: string = (await pairContract.method(token0ABI).call())
                 .decoded[0];
@@ -76,9 +91,9 @@ export class OnchainDataService implements OnModuleInit
                 .range({
                     unit: "block",
                     // Since every block is 10s, 8640 blocks will be 24h
-                    from: this.connex.thor.status.head.number - 8640,
+                    from: this.Connex.thor.status.head.number - 8640,
                     // Current block number
-                    to: this.connex.thor.status.head.number,
+                    to: this.Connex.thor.status.head.number,
                 });
 
             let end: boolean = false;
@@ -140,7 +155,7 @@ export class OnchainDataService implements OnModuleInit
         const decimalsABI: object = find(IERC20ABI, { name: "decimals" });
 
         const symbol: string = (
-            await this.connex.thor.account(address).method(symbolABI).call()
+            await this.Connex.thor.account(address).method(symbolABI).call()
         ).decoded[0];
 
         let price: number | undefined = undefined;
@@ -154,11 +169,11 @@ export class OnchainDataService implements OnModuleInit
         else
         {
             const name: string = (
-                await this.connex.thor.account(address).method(nameABI).call()
+                await this.Connex.thor.account(address).method(nameABI).call()
             ).decoded[0];
 
             const decimals: string = (
-                await this.connex.thor.account(address).method(decimalsABI).call()
+                await this.Connex.thor.account(address).method(decimalsABI).call()
             ).decoded[0];
 
             const token: Token = new Token(name, symbol, address, price, parseInt(decimals));
@@ -172,9 +187,9 @@ export class OnchainDataService implements OnModuleInit
     {
         const net: SimpleNet = new SimpleNet("https://mainnet.veblocks.net");
         const driver: Driver = await Driver.connect(net);
-        this.connex = new Framework(driver);
+        this.mConnex = new Framework(driver);
 
-        this.factoryContract = this.connex.thor.account(FACTORY_ADDRESS);
+        this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
         this.fetch();
     }

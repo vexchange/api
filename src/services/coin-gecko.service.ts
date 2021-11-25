@@ -1,18 +1,21 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
-import CoinGecko from "coingecko-api";
+// eslint-disable-next-line @typescript-eslint/typedef
+const CoinGecko = require("coingecko-api");
 
 @Injectable()
 export class CoinGeckoService implements OnModuleInit
 {
-    private client: CoinGecko | undefined;
-    private vetPrice: number | undefined;
+    private mClient: typeof CoinGecko | undefined;
+    private mVetPrice: number | undefined;
 
     @Interval(60000)
     private async fetch(): Promise<void>
     {
-        this.vetPrice = (
-            await this.client.simple.price({
+        if (this.mClient === undefined) { throw new Error("Client undefined"); }
+        this.mVetPrice = (
+            await this.mClient.simple.price({
                 ids: ["vechain"],
                 vs_currencies: ["usd"],
             })
@@ -21,12 +24,12 @@ export class CoinGeckoService implements OnModuleInit
 
     public onModuleInit(): void
     {
-        this.client = new CoinGecko();
+        this.mClient = new CoinGecko();
         this.fetch();
     }
 
     public getVetPrice(): number | undefined
     {
-        return this.vetPrice;
+        return this.mVetPrice;
     }
 }

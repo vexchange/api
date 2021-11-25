@@ -20,7 +20,7 @@ export class TokenController
     @Get(":address")
     public getTokenFromAddress(@Param() params: GetTokenFromAddressDto): Token
     {
-        if (!isAddress(params.address))
+        if (params.address === undefined || !isAddress(params.address))
         {
             throw new BadRequestException("Invalid request");
         }

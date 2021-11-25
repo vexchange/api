@@ -20,7 +20,7 @@ export class PairsController
     @Get(":address")
     public getPairFromAddress(@Param() params: GetPairFromAddressDto): Pair
     {
-        if (!isAddress(params.address))
+        if (params.address === undefined || !isAddress(params.address))
         {
             throw new BadRequestException("Invalid request");
         }

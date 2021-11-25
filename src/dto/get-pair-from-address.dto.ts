@@ -1,4 +1,4 @@
 export class GetPairFromAddressDto
 {
-    public address: string;
+    public address: string | undefined = undefined;
 }

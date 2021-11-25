@@ -30,7 +30,6 @@
     "@nestjs/schedule": "^1.0.2",
     "@nestjs/swagger": "^5.1.5",
     "@nestjs/throttler": "^2.0.0",
-    "@types/coingecko-api": "^1.0.4",
     "@vechain/connex": "^2.0.5",
     "coingecko-api": "^1.0.10",
     "ethers": "^5.5.1",
@@ -42,10 +41,10 @@
     "vexchange-sdk": "^1.1.0"
   },
   "devDependencies": {
-    "@proxima-oss/eslint-config": "4.0.4",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
+    "@proxima-oss/eslint-config": "4.0.4",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
@@ -62,10 +61,10 @@
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
     "ts-jest": "^27.0.3",
-    "tslint": "6.1.3",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
+    "tslint": "6.1.3",
     "typescript": "^4.3.5"
   },
   "jest": {

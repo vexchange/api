@@ -4,7 +4,6 @@ export class Token
     private readonly symbol: string;
     private readonly contractAddress: string;
     private usdPrice: number | undefined;
-    private readonly decimals: number;
     // readonly circulatingSupply: BigNumber;
     // readonly totalSupply: BigNumber;
 
@@ -27,7 +26,9 @@ export class Token
     // this.totalSupply = aTotalSupply;
     }
 
-    public getUsdPrice(): number
+    public readonly decimals: number;
+
+    public getUsdPrice(): number | undefined
     {
         return this.usdPrice;
     }
