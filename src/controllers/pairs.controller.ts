@@ -1,35 +1,33 @@
-import {
-  Controller,
-  Get,
-  BadRequestException,
-  NotFoundException,
-  Param,
-} from '@nestjs/common';
-import { Pair, Pairs } from '../pair';
-import { OnchainDataService } from '@services/onchain-data.service';
+import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { OnchainDataService } from "@services/onchain-data.service";
 import { isAddress } from "ethers/lib/utils";
-import { ApiTags } from '@nestjs/swagger';
-import { GetPairFromAddressDto } from '../dto/get-pair-from-address.dto';
+import { GetPairFromAddressDto } from "../dto/get-pair-from-address.dto";
+import { Pair, Pairs } from "../pair";
 
-@Controller({ path: 'pairs', version: '1' })
-@ApiTags('pairs')
-export class PairsController {
-  constructor(private readonly onchainDataService: OnchainDataService) {}
+@Controller({ path: "pairs", version: "1" })
+@ApiTags("pairs")
+export class PairsController
+{
+    public constructor(private readonly onchainDataService: OnchainDataService) {}
 
-  @Get()
-  getPairs(): Pairs {
-    return this.onchainDataService.getAllPairs();
-  }
-
-  @Get(':address')
-  getPairFromAddress(@Param() params: GetPairFromAddressDto): Pair {
-    if (!isAddress(params.address)) {
-      throw new BadRequestException('Invalid request');
+    @Get()
+    public getPairs(): Pairs
+    {
+        return this.onchainDataService.getAllPairs();
     }
 
-    const pair = this.onchainDataService.getPair(params.address);
-    if (pair) return pair;
+    @Get(":address")
+    public getPairFromAddress(@Param() params: GetPairFromAddressDto): Pair
+    {
+        if (!isAddress(params.address))
+        {
+            throw new BadRequestException("Invalid request");
+        }
 
-    throw new NotFoundException('Pair does not exist');
-  }
+        const pair: Pair | undefined = this.onchainDataService.getPair(params.address);
+        if (pair !== undefined) return pair;
+
+        throw new NotFoundException("Pair does not exist");
+    }
 }

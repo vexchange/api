@@ -1,41 +1,44 @@
-import { BigNumber } from "ethers";
+export class Token
+{
+    private readonly name: string;
+    private readonly symbol: string;
+    private readonly contractAddress: string;
+    private usdPrice: number | undefined;
+    private readonly decimals: number;
+    // readonly circulatingSupply: BigNumber;
+    // readonly totalSupply: BigNumber;
 
-export class Token {
-  constructor(
-    aName,
-    aSymbol,
-    aContractAddress,
-    aUsdPrice,
-    aDecimals,
+    public constructor(
+        aName: string,
+        aSymbol: string,
+        aContractAddress: string,
+        aUsdPrice: number | undefined,
+        aDecimals: number,
     // aCirculatingSupply,
     // aTotalSupply,
-  ) {
-    this.name = aName;
-    this.symbol = aSymbol;
-    this.contractAddress = aContractAddress;
-    this.usdPrice = aUsdPrice;
-    this.decimals = aDecimals;
+    )
+    {
+        this.name = aName;
+        this.symbol = aSymbol;
+        this.contractAddress = aContractAddress;
+        this.usdPrice = aUsdPrice;
+        this.decimals = aDecimals;
     // this.circulatingSupply = aCirculatingSupply;
     // this.totalSupply = aTotalSupply;
-  }
+    }
 
-  readonly name: string;
-  readonly symbol: string;
-  readonly contractAddress: string;
-  private usdPrice: number;
-  readonly decimals: number;
-  // readonly circulatingSupply: BigNumber;
-  // readonly totalSupply: BigNumber;
+    public getUsdPrice(): number
+    {
+        return this.usdPrice;
+    }
 
-  public getUsdPrice(): number {
-    return this.usdPrice;
-  }
-
-  public setUsdPrice(aNewUsdPrice: number): void {
-    this.usdPrice = aNewUsdPrice;
-  }
+    public setUsdPrice(aNewUsdPrice: number | undefined): void
+    {
+        this.usdPrice = aNewUsdPrice;
+    }
 }
 
-export class Tokens {
+export class Tokens
+{
   [key: string]: Token;
 }

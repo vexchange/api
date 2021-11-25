@@ -1,3 +1,4 @@
-export class GetPairFromAddressDto {
-  address: string;
+export class GetPairFromAddressDto
+{
+    public address: string;
 }

@@ -1,184 +1,201 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import { Pair, Pairs } from "../pair";
-import { Framework } from "@vechain/connex-framework";
-import { Driver, SimpleNet } from "@vechain/connex-driver";
-import { find } from "lodash";
+import { IERC20ABI } from "@abi/IERC20";
 import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
-import { IERC20ABI } from "@abi/IERC20";
-import { FACTORY_ADDRESS } from "vexchange-sdk";
+import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Interval } from "@nestjs/schedule";
+import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Token, Tokens } from "@src/token";
+import { Driver, SimpleNet } from "@vechain/connex-driver";
+import { Framework } from "@vechain/connex-framework";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
-import { CoinGeckoService } from "@services/coin-gecko.service";
-import { Interval } from "@nestjs/schedule";
+import { find } from "lodash";
+import { FACTORY_ADDRESS } from "vexchange-sdk";
+import { Pair, Pairs } from "../pair";
 
 @Injectable()
-export class OnchainDataService implements OnModuleInit {
-  private pairs: Pairs = {};
-  private tokens: Tokens = {};
-  private connex: Connex;
-  private factoryContract: Connex.Thor.Account.Visitor;
+export class OnchainDataService implements OnModuleInit
+{
+    private pairs: Pairs = {};
+    private tokens: Tokens = {};
+    private connex: Connex;
+    private factoryContract: Connex.Thor.Account.Visitor;
 
-  constructor(
+    public constructor(
     @Inject(forwardRef(() => CoinGeckoService))
     private readonly coingeckoService: CoinGeckoService,
-  ) {}
+    ) {}
 
-  async onModuleInit(): Promise<void> {
-    const net = new SimpleNet('https://mainnet.veblocks.net');
-    const driver = await Driver.connect(net);
-    this.connex = new Framework(driver);
+    @Interval(60000)
+    private async fetch(): Promise<void>
+    {
+        const allPairsLengthABI: object = find(VexchangeV2FactoryABI, {
+            name: "allPairsLength",
+        });
+        let method: Connex.Thor.Account.Method = this.factoryContract.method(allPairsLengthABI);
+        const numPairs: number = parseInt((await method.call()).decoded[0]);
 
-    this.factoryContract = this.connex.thor.account(FACTORY_ADDRESS);
+        const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
+        method = this.factoryContract.method(allPairs);
 
-    this.fetch();
-  }
+        const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
+        const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
+        const getReservesABI: object = find(VexchangeV2PairABI, { name: "getReserves" });
+        const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
 
-  @Interval(60000)
-  async fetch(): Promise<void> {
-    const allPairsLengthABI = find(VexchangeV2FactoryABI, {
-      name: 'allPairsLength',
-    });
-    let method = this.factoryContract.method(allPairsLengthABI);
-    const numPairs = parseInt((await method.call()).decoded[0]);
+        /**
+         * TODO: Make parallel and asynchronous
+         */
+        for (let i: number = 0; i < numPairs; ++i)
+        {
+            const res: Connex.VM.Output & Connex.Thor.Account.WithDecoded = await method.call(i);
+            const pairAddress: string = res.decoded[0];
+            const pairContract: Connex.Thor.Account.Visitor = this.connex.thor.account(pairAddress);
 
-    const allPairs = find(VexchangeV2FactoryABI, { name: 'allPairs' });
-    method = this.factoryContract.method(allPairs);
+            const token0Address: string = (await pairContract.method(token0ABI).call())
+                .decoded[0];
 
-    const token0ABI = find(VexchangeV2PairABI, { name: 'token0' });
-    const token1ABI = find(VexchangeV2PairABI, { name: 'token1' });
-    const getReservesABI = find(VexchangeV2PairABI, { name: 'getReserves' });
-    const swapEventABI = find(VexchangeV2PairABI, { name: 'Swap' });
+            const token1Address: string = (await pairContract.method(token1ABI).call())
+                .decoded[0];
 
-    /**
-     * TODO: Make parallel and asynchronous
-     */
-    for (let i = 0; i < numPairs; ++i) {
-      const res = await method.call(i);
-      const pairAddress = res.decoded[0];
-      const pairContract = this.connex.thor.account(pairAddress);
+            const token0: Token = await this.fetchToken(token0Address);
+            const token1: Token = await this.fetchToken(token1Address);
 
-      const token0Address = (await pairContract.method(token0ABI).call())
-        .decoded[0];
+            const { reserve0, reserve1 } = (
+                await pairContract.method(getReservesABI).call()
+            ).decoded;
 
-      const token1Address = (await pairContract.method(token1ABI).call())
-        .decoded[0];
+            // Accounts for tokens with different decimal places
+            const price: BigNumber = parseUnits(reserve0, 18 - token0.decimals)
+                .mul(parseUnits("1")) // For added precision for BigNumber arithmetic
+                .div(parseUnits(reserve1, 18 - token1.decimals));
 
-      const token0: Token = await this.fetchToken(token0Address);
-      const token1: Token = await this.fetchToken(token1Address);
+            const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
 
-      const { reserve0, reserve1 } = (
-        await pairContract.method(getReservesABI).call()
-      ).decoded;
+            const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded> = swapEvent.filter([])
+                .range({
+                    unit: "block",
+                    // Since every block is 10s, 8640 blocks will be 24h
+                    from: this.connex.thor.status.head.number - 8640,
+                    // Current block number
+                    to: this.connex.thor.status.head.number,
+                });
 
-      // Accounts for tokens with different decimal places
-      const price = parseUnits(reserve0, 18 - token0.decimals)
-        .mul(parseUnits('1')) // For added precision for BigNumber arithmetic
-        .div(parseUnits(reserve1, 18 - token1.decimals));
+            let end: boolean = false;
+            let offset: number = 0;
+            const limit: number = 256;
 
-      const swapEvent = pairContract.event(swapEventABI);
+            let accToken0Volume: BigNumber = ethers.constants.Zero;
+            let accToken1Volume: BigNumber = ethers.constants.Zero;
 
-      const swapFilter = swapEvent.filter([]).range({
-        unit: 'block',
-        // Since every block is 10s, 8640 blocks will be 24h
-        from: this.connex.thor.status.head.number - 8640,
-        // Current block number
-        to: this.connex.thor.status.head.number,
-      });
+            // Need a while loop because we can only get
+            // up to 256 events each round using connex
+            while (!end)
+            {
+                const result: Connex.Thor.Filter.Row<"event", Connex.Thor.Account.WithDecoded>[] =
+                    await swapFilter.apply(offset, limit);
 
-      let end = false;
-      let offset = 0;
-      const limit = 256;
+                for (const transaction of result)
+                {
+                    accToken0Volume = accToken0Volume
+                        .add(transaction.decoded.amount0In)
+                        .add(transaction.decoded.amount0Out);
+                    accToken1Volume = accToken1Volume
+                        .add(transaction.decoded.amount1In)
+                        .add(transaction.decoded.amount1Out);
+                }
 
-      let accToken0Volume = ethers.constants.Zero;
-      let accToken1Volume = ethers.constants.Zero;
+                if (result.length === limit) offset += limit;
+                else end = true;
+            }
 
-      // Need a while loop because we can only get
-      // up to 256 events each round using connex
-      while (!end) {
-        const result = await swapFilter.apply(offset, limit);
-
-        for (const transaction of result) {
-          accToken0Volume = accToken0Volume
-            .add(transaction.decoded.amount0In)
-            .add(transaction.decoded.amount0Out);
-          accToken1Volume = accToken1Volume
-            .add(transaction.decoded.amount1In)
-            .add(transaction.decoded.amount1Out);
+            if (pairAddress in this.pairs)
+            {
+                this.pairs[pairAddress].setPrice(formatEther(price));
+                this.pairs[pairAddress].setToken0Reserve(BigNumber.from(reserve0));
+                this.pairs[pairAddress].setToken1Reserve(BigNumber.from(reserve1));
+                this.pairs[pairAddress].setToken0Volume(formatEther(accToken0Volume));
+                this.pairs[pairAddress].setToken1Volume(formatEther(accToken1Volume));
+            }
+            else
+            {
+                this.pairs[pairAddress] = new Pair(
+                    pairAddress,
+                    token0,
+                    token1,
+                    formatEther(price),
+                    BigNumber.from(reserve0),
+                    BigNumber.from(reserve1),
+                    formatEther(accToken0Volume),
+                    formatEther(accToken1Volume),
+                );
+            }
         }
-
-        if (result.length === limit) offset += limit;
-        else end = true;
-      }
-
-      if (pairAddress in this.pairs) {
-        this.pairs[pairAddress].setPrice(formatEther(price));
-        this.pairs[pairAddress].setToken0Reserve(BigNumber.from(reserve0));
-        this.pairs[pairAddress].setToken1Reserve(BigNumber.from(reserve1));
-        this.pairs[pairAddress].setToken0Volume(formatEther(accToken0Volume));
-        this.pairs[pairAddress].setToken1Volume(formatEther(accToken1Volume));
-      }
-      else {
-        this.pairs[pairAddress] = new Pair(
-          pairAddress,
-          token0,
-          token1,
-          formatEther(price),
-          BigNumber.from(reserve0),
-          BigNumber.from(reserve1),
-          formatEther(accToken0Volume),
-          formatEther(accToken1Volume),
-        );
-      }
     }
-  }
 
-  async fetchToken(address: string): Promise<Token> {
-    const nameABI = find(IERC20ABI, { name: 'name' });
-    const symbolABI = find(IERC20ABI, { name: 'symbol' });
-    const decimalsABI = find(IERC20ABI, { name: 'decimals' });
+    private async fetchToken(address: string): Promise<Token>
+    {
+        const nameABI: object = find(IERC20ABI, { name: "name" });
+        const symbolABI: object = find(IERC20ABI, { name: "symbol" });
+        const decimalsABI: object = find(IERC20ABI, { name: "decimals" });
 
-    const symbol = (
-      await this.connex.thor.account(address).method(symbolABI).call()
-    ).decoded[0];
+        const symbol: string = (
+            await this.connex.thor.account(address).method(symbolABI).call()
+        ).decoded[0];
 
-    let price = null;
-    if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
+        let price: number | undefined = undefined;
+        if (symbol === "WVET") price = this.coingeckoService.getVetPrice();
 
-    if (address in this.tokens) {
-      this.tokens[address].setUsdPrice(price);
-      return this.tokens[address];
+        if (address in this.tokens)
+        {
+            this.tokens[address].setUsdPrice(price);
+            return this.tokens[address];
+        }
+        else
+        {
+            const name: string = (
+                await this.connex.thor.account(address).method(nameABI).call()
+            ).decoded[0];
+
+            const decimals: string = (
+                await this.connex.thor.account(address).method(decimalsABI).call()
+            ).decoded[0];
+
+            const token: Token = new Token(name, symbol, address, price, parseInt(decimals));
+
+            this.tokens[address] = token;
+            return token;
+        }
     }
-    else {
-      const name = (
-        await this.connex.thor.account(address).method(nameABI).call()
-      ).decoded[0];
 
-      const decimals = (
-        await this.connex.thor.account(address).method(decimalsABI).call()
-      ).decoded[0];
+    public async onModuleInit(): Promise<void>
+    {
+        const net: SimpleNet = new SimpleNet("https://mainnet.veblocks.net");
+        const driver: Driver = await Driver.connect(net);
+        this.connex = new Framework(driver);
 
-      const token = new Token(name, symbol, address, price, parseInt(decimals));
+        this.factoryContract = this.connex.thor.account(FACTORY_ADDRESS);
 
-      this.tokens[address] = token;
-      return token;
+        this.fetch();
     }
-  }
 
-  getAllPairs(): Pairs {
-    return this.pairs;
-  }
+    public getAllPairs(): Pairs
+    {
+        return this.pairs;
+    }
 
-  getPair(pairAddress: string): Pair {
-    return this.pairs[pairAddress];
-  }
+    public getPair(pairAddress: string): Pair | undefined
+    {
+        return this.pairs[pairAddress];
+    }
 
-  getAllTokens(): Tokens {
-    return this.tokens;
-  }
+    public getAllTokens(): Tokens
+    {
+        return this.tokens;
+    }
 
-  getToken(tokenAddress: string): Token {
-    return this.tokens[tokenAddress];
-  }
+    public getToken(tokenAddress: string): Token | undefined
+    {
+        return this.tokens[tokenAddress];
+    }
 }

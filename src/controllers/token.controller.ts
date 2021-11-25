@@ -1,35 +1,33 @@
-import {
-  Controller,
-  Get,
-  BadRequestException,
-  NotFoundException,
-  Param,
-} from '@nestjs/common';
-import { Token, Tokens } from "../token";
+import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { OnchainDataService } from "@services/onchain-data.service";
 import { isAddress } from "ethers/lib/utils";
-import { OnchainDataService } from '@services/onchain-data.service';
-import { ApiTags } from '@nestjs/swagger';
-import { GetTokenFromAddressDto } from '../dto/get-token-from-address.dto';
+import { GetTokenFromAddressDto } from "../dto/get-token-from-address.dto";
+import { Token, Tokens } from "../token";
 
-@Controller({ path: 'tokens', version: '1' })
-@ApiTags('tokens')
-export class TokenController {
-  constructor(private readonly onchainDataService: OnchainDataService) {}
+@Controller({ path: "tokens", version: "1" })
+@ApiTags("tokens")
+export class TokenController
+{
+    public constructor(private readonly onchainDataService: OnchainDataService) {}
 
-  @Get()
-  getTokens(): Tokens {
-    return this.onchainDataService.getAllTokens();
-  }
-
-  @Get(':address')
-  getTokenFromAddress(@Param() params: GetTokenFromAddressDto): Token {
-    if (!isAddress(params.address)) {
-      throw new BadRequestException('Invalid request');
+    @Get()
+    public getTokens(): Tokens
+    {
+        return this.onchainDataService.getAllTokens();
     }
 
-    const token = this.onchainDataService.getToken(params.address);
-    if (token) return token;
+    @Get(":address")
+    public getTokenFromAddress(@Param() params: GetTokenFromAddressDto): Token
+    {
+        if (!isAddress(params.address))
+        {
+            throw new BadRequestException("Invalid request");
+        }
 
-    throw new NotFoundException('Token does not exist');
-  }
+        const token: Token | undefined = this.onchainDataService.getToken(params.address);
+        if (token !== undefined) return token;
+
+        throw new NotFoundException("Token does not exist");
+    }
 }
