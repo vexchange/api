@@ -11,6 +11,7 @@ import { Token, Tokens } from "@src/token";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { CoinGeckoService } from "@services/coin-gecko.service";
+import { times } from "lodash";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -49,10 +50,7 @@ export class OnchainDataService implements OnModuleInit {
     const getReservesABI = find(VexchangeV2PairABI, { name: 'getReserves' });
     const swapEventABI = find(VexchangeV2PairABI, { name: 'Swap' });
 
-    /**
-     * TODO: Make parallel and asynchronous
-     */
-    for (let i = 0; i < numPairs; ++i) {
+    const promises = times(numPairs, async (i) => {
       const res = await method.call(i);
       const pairAddress = res.decoded[0];
       const pairContract = this.connex.thor.account(pairAddress);
@@ -118,7 +116,9 @@ export class OnchainDataService implements OnModuleInit {
         formatEther(accToken0Volume),
         formatEther(accToken1Volume),
       );
-    }
+    });
+
+    await Promise.all(promises);
   }
 
   async fetchToken(address: string): Promise<Token> {
