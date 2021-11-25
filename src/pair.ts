@@ -25,11 +25,47 @@ export class Pair {
   readonly address: string;
   readonly token0: Token;
   readonly token1: Token;
-  readonly price: string;
-  readonly token0Reserve: BigNumber;
-  readonly token1Reserve: BigNumber;
-  readonly token0Volume: string;
-  readonly token1Volume: string;
+  private price: string;
+  private token0Reserve: BigNumber;
+  private token1Reserve: BigNumber;
+  private token0Volume: string;
+  private token1Volume: string;
+
+  public getPrice(): string {
+    return this.price;
+  }
+
+  public setPrice(aNewPrice: string): void {
+    this.price = aNewPrice;
+  }
+
+  public getToken0Reserve(): BigNumber {
+    return this.token0Reserve;
+  }
+  public setToken0Reserve(aNewToken0Reserve: BigNumber): void {
+    this.token0Reserve = aNewToken0Reserve;
+  }
+  public getToken1Reserve(): BigNumber {
+    return this.token1Reserve;
+  }
+  public setToken1Reserve(aNewToken1Reserve: BigNumber): void {
+    this.token1Reserve = aNewToken1Reserve;
+  }
+
+  public getToken0Volume(): string {
+    return this.token0Volume;
+  }
+
+  public setToken0Volume(aNewToken0Volume): void {
+    this.token0Volume = aNewToken0Volume;
+  }
+
+  public getToken1Volume(): string {
+    return this.token1Volume;
+  }
+  public setToken1Volume(aNewToken1Volume): void {
+    this.token1Volume = aNewToken1Volume;
+  }
 }
 
 export class Pairs {

@@ -1,16 +1,17 @@
-import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { Pair, Pairs } from '@src/pair';
-import { Framework } from '@vechain/connex-framework';
-import { Driver, SimpleNet } from '@vechain/connex-driver';
-import { find } from 'lodash';
-import { VexchangeV2FactoryABI } from '@abi/VexchangeV2Factory';
-import { VexchangeV2PairABI } from '@abi/VexchangeV2Pair';
-import { IERC20ABI } from '@abi/IERC20';
-import { FACTORY_ADDRESS } from 'vexchange-sdk';
-import { Token, Tokens } from '@src/token';
-import { BigNumber, ethers } from 'ethers';
-import { formatEther, parseUnits } from 'ethers/lib/utils';
-import { CoinGeckoService } from '@services/coin-gecko.service';
+import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Pair, Pairs } from "../pair";
+import { Framework } from "@vechain/connex-framework";
+import { Driver, SimpleNet } from "@vechain/connex-driver";
+import { find } from "lodash";
+import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
+import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
+import { IERC20ABI } from "@abi/IERC20";
+import { FACTORY_ADDRESS } from "vexchange-sdk";
+import { Token, Tokens } from "@src/token";
+import { BigNumber, ethers } from "ethers";
+import { formatEther, parseUnits } from "ethers/lib/utils";
+import { CoinGeckoService } from "@services/coin-gecko.service";
+import { Interval } from "@nestjs/schedule";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -34,6 +35,7 @@ export class OnchainDataService implements OnModuleInit {
     this.fetch();
   }
 
+  @Interval(60000)
   async fetch(): Promise<void> {
     const allPairsLengthABI = find(VexchangeV2FactoryABI, {
       name: 'allPairsLength',
@@ -79,8 +81,10 @@ export class OnchainDataService implements OnModuleInit {
 
       const swapFilter = swapEvent.filter([]).range({
         unit: 'block',
-        from: this.connex.thor.status.head.number - 8640, // Since every block is 10s
-        to: this.connex.thor.status.head.number, // Current block number
+        // Since every block is 10s, 8640 blocks will be 24h
+        from: this.connex.thor.status.head.number - 8640,
+        // Current block number
+        to: this.connex.thor.status.head.number,
       });
 
       let end = false;
@@ -108,21 +112,42 @@ export class OnchainDataService implements OnModuleInit {
         else end = true;
       }
 
-      this.pairs[pairAddress] = new Pair(
-        pairAddress,
-        token0,
-        token1,
-        formatEther(price),
-        BigNumber.from(reserve0),
-        BigNumber.from(reserve1),
-        formatEther(accToken0Volume),
-        formatEther(accToken1Volume),
-      );
+      if (pairAddress in this.pairs) {
+        this.pairs[pairAddress].setPrice(formatEther(price));
+        this.pairs[pairAddress].setToken0Reserve(BigNumber.from(reserve0));
+        this.pairs[pairAddress].setToken1Reserve(BigNumber.from(reserve1));
+        this.pairs[pairAddress].setToken0Volume(formatEther(accToken0Volume));
+        this.pairs[pairAddress].setToken1Volume(formatEther(accToken1Volume));
+      }
+      else {
+        this.pairs[pairAddress] = new Pair(
+          pairAddress,
+          token0,
+          token1,
+          formatEther(price),
+          BigNumber.from(reserve0),
+          BigNumber.from(reserve1),
+          formatEther(accToken0Volume),
+          formatEther(accToken1Volume),
+        );
+      }
     }
   }
 
   async fetchToken(address: string): Promise<Token> {
+    const nameABI = find(IERC20ABI, { name: 'name' });
+    const symbolABI = find(IERC20ABI, { name: 'symbol' });
+    const decimalsABI = find(IERC20ABI, { name: 'decimals' });
+
+    const symbol = (
+      await this.connex.thor.account(address).method(symbolABI).call()
+    ).decoded[0];
+
+    let price = null;
+    if (symbol === 'WVET') price = this.coingeckoService.getVetPrice();
+
     if (address in this.tokens) {
+      this.tokens[address].setUsdPrice(price);
       return this.tokens[address];
     } else {
       const nameABI = find(IERC20ABI, { name: 'name' });
@@ -131,10 +156,6 @@ export class OnchainDataService implements OnModuleInit {
 
       const name = (
         await this.connex.thor.account(address).method(nameABI).call()
-      ).decoded[0];
-
-      const symbol = (
-        await this.connex.thor.account(address).method(symbolABI).call()
       ).decoded[0];
 
       const decimals = (
