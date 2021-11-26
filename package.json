@@ -42,7 +42,7 @@
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^27.0.3",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
@@ -66,8 +66,22 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "moduleNameMapper": {
+      "@src/(.*)": [
+        "<rootDir>/src/$1"
+      ],
+      "@controllers/(.*)": [
+        "<rootDir>/src/controllers/$1"
+      ],
+      "@services/(.*)": "<rootDir>/src/services/$1",
+      "@abi/(.*)": [
+        "<rootDir>/abi/$1"
+      ],
+      "@test/(.*)": [
+        "<rootDir>/test/$1"
+      ]
+    },
+    "rootDir": ".",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
