@@ -6,7 +6,7 @@ import { CoinGeckoService } from '@services/coin-gecko.service';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ScheduleModule } from "@nestjs/schedule";
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot(),

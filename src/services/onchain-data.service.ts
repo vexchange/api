@@ -6,13 +6,13 @@ import { VexchangeV2FactoryABI } from '@abi/VexchangeV2Factory';
 import { VexchangeV2PairABI } from '@abi/VexchangeV2Pair';
 import { IERC20ABI } from '@abi/IERC20';
 import { FACTORY_ADDRESS } from 'vexchange-sdk';
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { formatEther, parseUnits } from 'ethers/lib/utils';
 import { CoinGeckoService } from '@services/coin-gecko.service';
 import { Interval } from '@nestjs/schedule';
 import { IToken, ITokens } from '../interfaces/token';
 import { IPair, IPairs } from '../interfaces/pair';
-import { times } from 'lodash'
+import { times } from 'lodash';
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit {
@@ -116,11 +116,11 @@ export class OnchainDataService implements OnModuleInit {
         token0Reserve: formatEther(reserve0),
         token1Reserve: formatEther(reserve1),
         token0Volume: formatEther(accToken0Volume),
-        token1Volume: formatEther(accToken1Volume)
+        token1Volume: formatEther(accToken1Volume),
       };
 
-      console.log(this.pairs)
-    })
+      console.log(this.pairs);
+    });
   }
 
   async fetchToken(address: string): Promise<IToken> {
@@ -138,8 +138,8 @@ export class OnchainDataService implements OnModuleInit {
     if (address in this.tokens) {
       const token = {
         ...this.tokens[address],
-        usdPrice: price
-      }
+        usdPrice: price,
+      };
 
       this.tokens[address] = token;
 

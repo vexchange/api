@@ -10,17 +10,19 @@ describe('PairsController', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-        controllers: [PairsController],
-        providers: [CoinGeckoService, OnchainDataService],
-      }).compile();
+      controllers: [PairsController],
+      providers: [CoinGeckoService, OnchainDataService],
+    }).compile();
 
-      onchainDataService = moduleRef.get<OnchainDataService>(OnchainDataService);
-      pairsController = moduleRef.get<PairsController>(PairsController);
+    onchainDataService = moduleRef.get<OnchainDataService>(OnchainDataService);
+    pairsController = moduleRef.get<PairsController>(PairsController);
   });
 
   describe('getPairs', () => {
     it('should return all pairs', async () => {
-      jest.spyOn(onchainDataService, 'getAllPairs').mockImplementation(() => allPairs);
+      jest
+        .spyOn(onchainDataService, 'getAllPairs')
+        .mockImplementation(() => allPairs);
 
       expect(pairsController.getPairs()).toBe(allPairs);
     });

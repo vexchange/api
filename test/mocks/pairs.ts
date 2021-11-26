@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber';
 import { IPairs } from '../../src/interfaces/pair';
 
 export const allPairs: IPairs = {

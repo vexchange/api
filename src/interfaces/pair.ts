@@ -1,4 +1,4 @@
-import { IToken } from "./token";
+import { IToken } from './token';
 
 export interface IPair {
   address: string;
