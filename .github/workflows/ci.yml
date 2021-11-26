@@ -19,9 +19,7 @@ jobs:
       - name: ⚙️ building...
         run: npm run build
       - name: 💅 code syntax and style
-        run: |
-          npm run format
-          npm run lint
+        run: npm run lint
       - name: 🧪 running tests...
         run: |
           npm test
