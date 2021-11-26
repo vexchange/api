@@ -118,8 +118,6 @@ export class OnchainDataService implements OnModuleInit {
         token0Volume: formatEther(accToken0Volume),
         token1Volume: formatEther(accToken1Volume),
       };
-
-      console.log(this.pairs);
     });
   }
 
