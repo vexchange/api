@@ -8,12 +8,12 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,test,abi}/**/*.{ts,js}\" --fix",
+    "lint:json": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -22,6 +22,10 @@
   },
   "eslintConfig": {
     "extends": "@proxima-oss/eslint-config"
+  },
+  "prettier": {
+    "singleQuote": false,
+    "trailingComma": "all"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
