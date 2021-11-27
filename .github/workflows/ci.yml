@@ -21,5 +21,4 @@ jobs:
       - name: 💅 code syntax and style
         run: npm run lint
       - name: 🧪 running tests...
-        run: |
-          npm test
+        run: npm run test
