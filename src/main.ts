@@ -7,13 +7,16 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { VersioningType } from '@nestjs/common';
-import { writeFileSync } from 'fs'
+import { writeFileSync } from 'fs';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+  const configService = app.get(ConfigService);
+  const PORT = configService.get<string>('PORT');
 
   const config = new DocumentBuilder()
     .setTitle('Vexchange API')
@@ -21,7 +24,7 @@ async function bootstrap() {
     .addServer('v1')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  writeFileSync("./swagger-spec.json", JSON.stringify(document));
+  writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup('/', app, document);
 
   app.enableVersioning({
@@ -32,7 +35,7 @@ async function bootstrap() {
   await app.register(fastifyHelmet, {
     contentSecurityPolicy: false,
   });
-  await app.listen(3000, '0.0.0.0');
+  await app.listen(PORT, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

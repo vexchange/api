@@ -3,12 +3,13 @@ import { TokenController } from '@controllers/token.controller';
 import { PairsController } from '@controllers/pairs.controller';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { CoinGeckoService } from '@services/coin-gecko.service';
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { APP_GUARD } from "@nestjs/core";
-import { ScheduleModule } from "@nestjs/schedule";
-
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     // For rate limiting
     ThrottlerModule.forRoot({
       // This means that the user can only make
