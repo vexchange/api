@@ -1,6 +1,7 @@
 import { PairsController } from "@controllers/pairs.controller";
 import { TokenController } from "@controllers/token.controller";
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
@@ -9,7 +10,8 @@ import { OnchainDataService } from "@services/onchain-data.service";
 
 @Module({
     imports: [
-    // For rate limiting
+        ConfigModule.forRoot(),
+        // For rate limiting
         ThrottlerModule.forRoot({
             // This means that the user can only make
             // 10 queries per 60 seconds

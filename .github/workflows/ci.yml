@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  vexchange-api-ci:
+    name: Vexchange API - CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.10
+      - name: 📦 installing packages
+        run: npm ci
+      - name: ⚙️ building...
+        run: npm run build
+      - name: 💅 code syntax and style
+        run: |
+          npm run lint
+          npm run lint:json
+      - name: 🧪 running tests...
+        run: npm run test

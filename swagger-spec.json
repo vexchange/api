@@ -9,9 +9,7 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Pairs" }
-              }
+              "application/json": { "schema": { "type": "object" } }
             }
           }
         },
@@ -33,9 +31,7 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Pair" }
-              }
+              "application/json": { "schema": { "type": "object" } }
             }
           }
         },
@@ -50,9 +46,7 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Tokens" }
-              }
+              "application/json": { "schema": { "type": "object" } }
             }
           }
         },
@@ -74,9 +68,7 @@
           "200": {
             "description": "",
             "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Token" }
-              }
+              "application/json": { "schema": { "type": "object" } }
             }
           }
         },
@@ -92,12 +84,5 @@
   },
   "tags": [],
   "servers": [{ "url": "v1" }],
-  "components": {
-    "schemas": {
-      "Pairs": { "type": "object", "properties": {} },
-      "Pair": { "type": "object", "properties": {} },
-      "Tokens": { "type": "object", "properties": {} },
-      "Token": { "type": "object", "properties": {} }
-    }
-  }
+  "components": { "schemas": {} }
 }

@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^1.1.3",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-fastify": "^8.2.3",
     "@nestjs/schedule": "^1.0.2",
@@ -77,8 +78,22 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "moduleNameMapper": {
+      "@src/(.*)": [
+        "<rootDir>/src/$1"
+      ],
+      "@controllers/(.*)": [
+        "<rootDir>/src/controllers/$1"
+      ],
+      "@services/(.*)": "<rootDir>/src/services/$1",
+      "@abi/(.*)": [
+        "<rootDir>/abi/$1"
+      ],
+      "@test/(.*)": [
+        "<rootDir>/test/$1"
+      ]
+    },
+    "rootDir": ".",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

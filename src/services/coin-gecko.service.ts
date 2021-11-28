@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
-// eslint-disable-next-line @typescript-eslint/typedef
-const CoinGecko = require("coingecko-api");
+import * as CoinGecko from "coingecko-api";
 
 @Injectable()
 export class CoinGeckoService implements OnModuleInit

@@ -1,23 +1,23 @@
 import { IERC20ABI } from "@abi/IERC20";
 import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
+import { IPair, IPairs } from "@interfaces/pair";
+import { IToken, ITokens } from "@interfaces/token";
 import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
-import { Token, Tokens } from "@src/token";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
 import { Framework } from "@vechain/connex-framework";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
-import { find } from "lodash";
+import { find, times } from "lodash";
 import { FACTORY_ADDRESS } from "vexchange-sdk";
-import { Pair, Pairs } from "../pair";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
-    private pairs: Pairs = {};
-    private tokens: Tokens = {};
+    private pairs: IPairs = {};
+    private tokens: ITokens = {};
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
 
@@ -40,7 +40,6 @@ export class OnchainDataService implements OnModuleInit
         return this.mFactoryContract!;
     }
 
-
     @Interval(60000)
     private async fetch(): Promise<void>
     {
@@ -51,17 +50,14 @@ export class OnchainDataService implements OnModuleInit
         const numPairs: number = parseInt((await method.call()).decoded[0]);
 
         const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
-        method = this.FactoryContract.method(allPairs);
-
         const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
         const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
         const getReservesABI: object = find(VexchangeV2PairABI, { name: "getReserves" });
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
 
-        /**
-         * TODO: Make parallel and asynchronous
-         */
-        for (let i: number = 0; i < numPairs; ++i)
+        method = this.FactoryContract.method(allPairs);
+
+        times(numPairs, async(i: number) =>
         {
             const res: Connex.VM.Output & Connex.Thor.Account.WithDecoded = await method.call(i);
             const pairAddress: string = res.decoded[0];
@@ -73,8 +69,8 @@ export class OnchainDataService implements OnModuleInit
             const token1Address: string = (await pairContract.method(token1ABI).call())
                 .decoded[0];
 
-            const token0: Token = await this.fetchToken(token0Address);
-            const token1: Token = await this.fetchToken(token1Address);
+            const token0: IToken = await this.fetchToken(token0Address);
+            const token1: IToken = await this.fetchToken(token1Address);
 
             const { reserve0, reserve1 } = (
                 await pairContract.method(getReservesABI).call()
@@ -124,31 +120,20 @@ export class OnchainDataService implements OnModuleInit
                 else end = true;
             }
 
-            if (pairAddress in this.pairs)
-            {
-                this.pairs[pairAddress].setPrice(formatEther(price));
-                this.pairs[pairAddress].setToken0Reserve(BigNumber.from(reserve0));
-                this.pairs[pairAddress].setToken1Reserve(BigNumber.from(reserve1));
-                this.pairs[pairAddress].setToken0Volume(formatEther(accToken0Volume));
-                this.pairs[pairAddress].setToken1Volume(formatEther(accToken1Volume));
-            }
-            else
-            {
-                this.pairs[pairAddress] = new Pair(
-                    pairAddress,
-                    token0,
-                    token1,
-                    formatEther(price),
-                    BigNumber.from(reserve0),
-                    BigNumber.from(reserve1),
-                    formatEther(accToken0Volume),
-                    formatEther(accToken1Volume),
-                );
-            }
-        }
+            this.pairs[pairAddress] = {
+                address: pairAddress,
+                token0,
+                token1,
+                price: formatEther(price),
+                token0Reserve: formatEther(reserve0),
+                token1Reserve: formatEther(reserve1),
+                token0Volume: formatEther(accToken0Volume),
+                token1Volume: formatEther(accToken1Volume),
+            };
+        });
     }
 
-    private async fetchToken(address: string): Promise<Token>
+    private async fetchToken(address: string): Promise<IToken>
     {
         const nameABI: object = find(IERC20ABI, { name: "name" });
         const symbolABI: object = find(IERC20ABI, { name: "symbol" });
@@ -159,28 +144,39 @@ export class OnchainDataService implements OnModuleInit
         ).decoded[0];
 
         let price: number | undefined = undefined;
+
         if (symbol === "WVET") price = this.coingeckoService.getVetPrice();
 
         if (address in this.tokens)
         {
-            this.tokens[address].setUsdPrice(price);
-            return this.tokens[address];
-        }
-        else
-        {
-            const name: string = (
-                await this.Connex.thor.account(address).method(nameABI).call()
-            ).decoded[0];
-
-            const decimals: string = (
-                await this.Connex.thor.account(address).method(decimalsABI).call()
-            ).decoded[0];
-
-            const token: Token = new Token(name, symbol, address, price, parseInt(decimals));
+            const token: IToken = {
+                ...this.tokens[address],
+                usdPrice: price,
+            };
 
             this.tokens[address] = token;
+
             return token;
         }
+
+        const name: string = (
+            await this.Connex.thor.account(address).method(nameABI).call()
+        ).decoded[0];
+
+        const decimals: string = (
+            await this.Connex.thor.account(address).method(decimalsABI).call()
+        ).decoded[0];
+
+        const token: IToken = {
+            name,
+            symbol,
+            contractAddress: address,
+            usdPrice: price,
+            decimals: parseInt(decimals),
+        };
+
+        this.tokens[address] = token;
+        return token;
     }
 
     public async onModuleInit(): Promise<void>
@@ -194,22 +190,22 @@ export class OnchainDataService implements OnModuleInit
         this.fetch();
     }
 
-    public getAllPairs(): Pairs
+    public getAllPairs(): IPairs
     {
         return this.pairs;
     }
 
-    public getPair(pairAddress: string): Pair | undefined
+    public getPair(pairAddress: string): IPair | undefined
     {
         return this.pairs[pairAddress];
     }
 
-    public getAllTokens(): Tokens
+    public getAllTokens(): ITokens
     {
         return this.tokens;
     }
 
-    public getToken(tokenAddress: string): Token | undefined
+    public getToken(tokenAddress: string): IToken | undefined
     {
         return this.tokens[tokenAddress];
     }
