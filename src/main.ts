@@ -6,7 +6,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { writeFileSync } from 'fs';
 import { ConfigService } from '@nestjs/config';
 
@@ -35,6 +35,7 @@ async function bootstrap() {
   await app.register(fastifyHelmet, {
     contentSecurityPolicy: false,
   });
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(PORT, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
