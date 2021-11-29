@@ -8,7 +8,6 @@ import {
 import { isAddress } from 'ethers/lib/utils';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { ApiTags } from '@nestjs/swagger';
-import { GetTokenFromAddressDto } from '../dto/get-token-from-address.dto';
 import { IToken, ITokens } from '../interfaces/token';
 
 @Controller({ path: 'tokens', version: '1' })
@@ -22,12 +21,12 @@ export class TokenController {
   }
 
   @Get(':address')
-  getTokenFromAddress(@Param() params: GetTokenFromAddressDto): IToken {
-    if (!isAddress(params.address)) {
+  getTokenFromAddress(@Param('address') address: string): IToken {
+    if (!isAddress(address)) {
       throw new BadRequestException('Invalid request');
     }
 
-    const token = this.onchainDataService.getToken(params.address);
+    const token = this.onchainDataService.getToken(address);
     if (token) return token;
 
     throw new NotFoundException('Token does not exist');

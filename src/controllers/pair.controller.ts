@@ -8,12 +8,11 @@ import {
 import { OnchainDataService } from '@services/onchain-data.service';
 import { isAddress } from 'ethers/lib/utils';
 import { ApiTags } from '@nestjs/swagger';
-import { GetPairFromAddressDto } from '../dto/get-pair-from-address.dto';
 import { IPair, IPairs } from '../interfaces/pair';
 
 @Controller({ path: 'pairs', version: '1' })
 @ApiTags('pairs')
-export class PairsController {
+export class PairController {
   constructor(private readonly onchainDataService: OnchainDataService) {}
 
   @Get()
@@ -22,12 +21,12 @@ export class PairsController {
   }
 
   @Get(':address')
-  getPairFromAddress(@Param() params: GetPairFromAddressDto): IPair {
-    if (!isAddress(params.address)) {
+  getPairFromAddress(@Param('address') address: string): IPair {
+    if (!isAddress(address)) {
       throw new BadRequestException('Invalid request');
     }
 
-    const pair = this.onchainDataService.getPair(params.address);
+    const pair = this.onchainDataService.getPair(address);
     if (pair) return pair;
 
     throw new NotFoundException('Pair does not exist');

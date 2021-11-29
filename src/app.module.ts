@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TokenController } from '@controllers/token.controller';
-import { PairsController } from '@controllers/pairs.controller';
+import { TokenController } from '@src/controllers/token.controller';
+import { PairController } from '@src/controllers/pair.controller';
 import { OnchainDataService } from '@services/onchain-data.service';
 import { CoinGeckoService } from '@services/coin-gecko.service';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -21,7 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     // For scheduling recurring tasks
     ScheduleModule.forRoot(),
   ],
-  controllers: [PairsController, TokenController],
+  controllers: [PairController, TokenController],
   providers: [
     {
       provide: APP_GUARD,
