@@ -85,12 +85,11 @@
     },
     "rootDir": ".",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.ts"
     ],
-    "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
 }
