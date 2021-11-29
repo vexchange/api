@@ -1,28 +1,33 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import * as CoinGecko from 'coingecko-api';
-import { Interval } from '@nestjs/schedule';
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Interval } from "@nestjs/schedule";
+import * as CoinGecko from "coingecko-api";
 
 @Injectable()
-export class CoinGeckoService implements OnModuleInit {
-  private client;
-  private vetPrice;
+export class CoinGeckoService implements OnModuleInit
+{
+    private mClient: typeof CoinGecko | undefined;
+    private mVetPrice: number | undefined;
 
-  onModuleInit(): void {
-    this.client = new CoinGecko();
-    this.fetch();
-  }
+    @Interval(60000)
+    private async fetch(): Promise<void>
+    {
+        if (this.mClient === undefined) { throw new Error("Client undefined"); }
+        this.mVetPrice = (
+            await this.mClient.simple.price({
+                ids: ["vechain"],
+                vs_currencies: ["usd"],
+            })
+        ).data.vechain.usd;
+    }
 
-  @Interval(60000)
-  async fetch(): Promise<void> {
-    this.vetPrice = (
-      await this.client.simple.price({
-        ids: ['vechain'],
-        vs_currencies: ['usd'],
-      })
-    ).data.vechain.usd;
-  }
+    public onModuleInit(): void
+    {
+        this.mClient = new CoinGecko();
+        this.fetch();
+    }
 
-  getVetPrice() {
-    return this.vetPrice;
-  }
+    public getVetPrice(): number | undefined
+    {
+        return this.mVetPrice;
+    }
 }

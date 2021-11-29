@@ -1,35 +1,34 @@
-import {
-  Controller,
-  Get,
-  BadRequestException,
-  NotFoundException,
-  Param,
-} from '@nestjs/common';
-import { isAddress } from 'ethers/lib/utils';
-import { OnchainDataService } from '@services/onchain-data.service';
-import { ApiTags } from '@nestjs/swagger';
-import { GetTokenFromAddressDto } from '../dto/get-token-from-address.dto';
-import { IToken, ITokens } from '../interfaces/token';
+import { IToken, ITokens } from "@interfaces/token";
+import { BadRequestException, Controller, Get, NotFoundException, Param } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { OnchainDataService } from "@services/onchain-data.service";
+import { isAddress } from "ethers/lib/utils";
+import { GetTokenFromAddressDto } from "../dto/get-token-from-address.dto";
 
-@Controller({ path: 'tokens', version: '1' })
-@ApiTags('tokens')
-export class TokenController {
-  constructor(private readonly onchainDataService: OnchainDataService) {}
+@Controller({ path: "tokens", version: "1" })
+@ApiTags("tokens")
+export class TokenController
+{
+    public constructor(private readonly onchainDataService: OnchainDataService) {}
 
   @Get()
-  getTokens(): ITokens {
-    return this.onchainDataService.getAllTokens();
-  }
-
-  @Get(':address')
-  getTokenFromAddress(@Param() params: GetTokenFromAddressDto): IToken {
-    if (!isAddress(params.address)) {
-      throw new BadRequestException('Invalid request');
+    public getTokens(): ITokens
+    {
+        return this.onchainDataService.getAllTokens();
     }
 
-    const token = this.onchainDataService.getToken(params.address);
-    if (token) return token;
 
-    throw new NotFoundException('Token does not exist');
+    @Get(":address")
+  public getTokenFromAddress(@Param() params: GetTokenFromAddressDto): IToken
+  {
+      if (params.address === undefined || !isAddress(params.address))
+      {
+          throw new BadRequestException("Invalid request");
+      }
+
+      const token: IToken | undefined = this.onchainDataService.getToken(params.address);
+      if (token !== undefined) return token;
+
+      throw new NotFoundException("Token does not exist");
   }
 }
