@@ -6,7 +6,7 @@ import * as CoinGecko from "coingecko-api";
 export class CoinGeckoService implements OnModuleInit
 {
     private mClient: typeof CoinGecko | undefined;
-    private mVetPrice: number | undefined;
+    private mVetPrice: number = 0;
 
     @Interval(60000)
     private async fetch(): Promise<void>
@@ -26,7 +26,7 @@ export class CoinGeckoService implements OnModuleInit
         this.fetch();
     }
 
-    public getVetPrice(): number | undefined
+    public getVetPrice(): number
     {
         return this.mVetPrice;
     }
