@@ -21,10 +21,12 @@ describe('PairController', () => {
 
   describe('getPairs', () => {
     it('should return all pairs', async () => {
+      // arrange
       jest
         .spyOn(onchainDataService, 'getAllPairs')
         .mockImplementation(() => allPairs);
 
+      // act & assert
       expect(pairController.getPairs()).toBe(allPairs);
     });
   });

@@ -21,10 +21,12 @@ describe('TokenController', () => {
 
   describe('getTokens', () => {
     it('should return all tokens', async () => {
+      // arrange
       jest
         .spyOn(onchainDataService, 'getAllTokens')
         .mockImplementation(() => allTokens);
 
+      // act & assert
       expect(tokenController.getTokens()).toBe(allTokens);
     });
   });
