@@ -20,7 +20,7 @@ export class OnchainDataService implements OnModuleInit {
   private tokens: ITokens = {};
   private connex: Connex;
   private factoryContract: Connex.Thor.Account.Visitor;
-  private readonly logger = new Logger(OnchainDataService.name);
+  private readonly logger = new Logger(OnchainDataService.name, { timestamp: true });
 
   constructor(
     @Inject(forwardRef(() => CoinGeckoService))
