@@ -3,11 +3,10 @@ import { BadRequestException, Controller, Get, NotFoundException, Param } from "
 import { ApiTags } from "@nestjs/swagger";
 import { OnchainDataService } from "@services/onchain-data.service";
 import { isAddress } from "ethers/lib/utils";
-import { GetPairFromAddressDto } from "../dto/get-pair-from-address.dto";
 
 @Controller({ path: "pairs", version: "1" })
 @ApiTags("pairs")
-export class PairsController
+export class PairController
 {
     public constructor(private readonly onchainDataService: OnchainDataService) {}
 
@@ -18,14 +17,14 @@ export class PairsController
     }
 
     @Get(":address")
-    public getPairFromAddress(@Param() params: GetPairFromAddressDto): IPair
+    public getPairFromAddress(@Param("address") address: string): IPair
     {
-        if (params.address === undefined || !isAddress(params.address))
+        if (!isAddress(address))
         {
             throw new BadRequestException("Invalid request");
         }
 
-        const pair: IPair | undefined = this.onchainDataService.getPair(params.address);
+        const pair: IPair | undefined = this.onchainDataService.getPair(address);
         if (pair !== undefined) return pair;
 
         throw new NotFoundException("Pair does not exist");

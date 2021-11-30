@@ -1,4 +1,4 @@
-import { PairsController } from "@controllers/pairs.controller";
+import { PairController } from "@controllers/pair.controller";
 import { TokenController } from "@controllers/token.controller";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
@@ -22,7 +22,7 @@ import { OnchainDataService } from "@services/onchain-data.service";
         // For scheduling recurring tasks
         ScheduleModule.forRoot(),
     ],
-    controllers: [PairsController, TokenController],
+    controllers: [PairController, TokenController],
     providers: [
         {
             provide: APP_GUARD,

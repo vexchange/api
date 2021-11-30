@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { VersioningType } from "@nestjs/common";
+import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
@@ -34,6 +34,7 @@ async function bootstrap()
     await app.register(fastifyHelmet, {
         contentSecurityPolicy: false,
     });
+    app.useGlobalPipes(new ValidationPipe());
     await app.listen(PORT, "0.0.0.0");
     console.log(`Application is running on: ${await app.getUrl()}`);
 }

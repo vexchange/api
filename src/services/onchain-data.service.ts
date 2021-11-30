@@ -3,7 +3,7 @@ import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
 import { IPair, IPairs } from "@interfaces/pair";
 import { IToken, ITokens } from "@interfaces/token";
-import { forwardRef, Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
@@ -13,7 +13,6 @@ import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 
-
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
@@ -21,6 +20,7 @@ export class OnchainDataService implements OnModuleInit
     private tokens: ITokens = {};
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
+    private readonly logger: Logger = new Logger(OnchainDataService.name, { timestamp: true });
 
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
@@ -49,7 +49,6 @@ export class OnchainDataService implements OnModuleInit
         });
         let method: Connex.Thor.Account.Method = this.FactoryContract.method(allPairsLengthABI);
         const numPairs: number = parseInt((await method.call()).decoded[0]);
-
         const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
         const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
         const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
@@ -84,14 +83,14 @@ export class OnchainDataService implements OnModuleInit
 
             const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
 
-            const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded> = swapEvent.filter([])
-                .range({
-                    unit: "block",
-                    // Since every block is 10s, 8640 blocks will be 24h
-                    from: this.Connex.thor.status.head.number - 8640,
-                    // Current block number
-                    to: this.Connex.thor.status.head.number,
-                });
+            const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded>
+                  = swapEvent.filter([]).range({
+                      unit: "block",
+                      // Since every block is 10s, 8640 blocks will be 24h
+                      from: this.Connex.thor.status.head.number - 8640,
+                      // Current block number
+                      to: this.Connex.thor.status.head.number,
+                  });
 
             let end: boolean = false;
             let offset: number = 0;
@@ -126,13 +125,12 @@ export class OnchainDataService implements OnModuleInit
                 token0,
                 token1,
                 price: formatEther(price),
-                token0Reserve: formatEther(reserve0),
-                token1Reserve: formatEther(reserve1),
-                token0Volume: formatEther(accToken0Volume),
-                token1Volume: formatEther(accToken1Volume),
+                token0Reserve: formatEther(parseUnits(reserve0, 18 - token0.decimals)),
+                token1Reserve: formatEther(parseUnits(reserve1, 18 - token1.decimals)),
+                token0Volume: formatEther(parseUnits(accToken0Volume.toString(), 18 - token0.decimals)),
+                token1Volume: formatEther(parseUnits(accToken1Volume.toString(), 18 - token1.decimals)),
             };
         });
-      
         await Promise.all(promises);
         this.calculateUsdPrices();
     }
@@ -169,10 +167,9 @@ export class OnchainDataService implements OnModuleInit
         return token;
     }
 
-    private async calculateUsdPrices(): Promise<void>
+    private calculateUsdPrices(): void
     {
         this.tokens[WVET["1"].address].usdPrice = this.coingeckoService.getVetPrice();
-
         for (const pairAddress in this.pairs)
         {
             const pair: IPair = this.pairs[pairAddress];
@@ -193,7 +190,6 @@ export class OnchainDataService implements OnModuleInit
         }
     }
 
-
     public async onModuleInit(): Promise<void>
     {
         const net: SimpleNet = new SimpleNet("https://mainnet.veblocks.net");
@@ -202,7 +198,9 @@ export class OnchainDataService implements OnModuleInit
 
         this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
-        this.fetch();
+        this.logger.log("Fetching on chain data...");
+        await this.fetch();
+        this.logger.log("Fetching on chain data completed");
     }
 
     public getAllPairs(): IPairs

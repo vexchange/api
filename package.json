@@ -34,8 +34,10 @@
     "@nestjs/platform-fastify": "8.2.3",
     "@nestjs/schedule": "1.0.2",
     "@nestjs/swagger": "5.1.5",
-    "@nestjs/throttler": "^2.0.0",
-    "@vechain/connex": "2.0.5",
+    "@nestjs/throttler": "2.0.0",
+    "@vechain/connex": "2.0.7",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.13.2",
     "coingecko-api": "1.0.10",
     "ethers": "5.5.1",
     "fastify-helmet": "5.3.2",
@@ -95,12 +97,11 @@
     },
     "rootDir": ".",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.ts"
     ],
-    "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
 }
