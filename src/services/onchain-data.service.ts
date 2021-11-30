@@ -8,6 +8,7 @@ import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
 import { Framework } from "@vechain/connex-framework";
+import { Mutex } from "async-mutex";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
@@ -18,6 +19,7 @@ export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
     private tokens: ITokens = {};
+    private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
     private readonly logger: Logger = new Logger(OnchainDataService.name, { timestamp: true });
@@ -69,8 +71,14 @@ export class OnchainDataService implements OnModuleInit
             const token1Address: string = ethers.utils.getAddress((await pairContract.method(token1ABI).call())
                 .decoded[0]);
 
-            const token0: IToken = await this.fetchToken(token0Address);
-            const token1: IToken = await this.fetchToken(token1Address);
+            const token0: IToken = await this.mutex.runExclusive(() =>
+            {
+                return this.fetchToken(token0Address);
+            });
+            const token1: IToken = await this.mutex.runExclusive(() =>
+            {
+                return this.fetchToken(token1Address);
+            });
 
             const { reserve0, reserve1 } = (
                 await pairContract.method(getReservesABI).call()
