@@ -13,6 +13,7 @@ import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 
+
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
@@ -131,8 +132,8 @@ export class OnchainDataService implements OnModuleInit
                 token1Volume: formatEther(accToken1Volume),
             };
         });
+      
         await Promise.all(promises);
-
         this.calculateUsdPrices();
     }
 
@@ -191,6 +192,7 @@ export class OnchainDataService implements OnModuleInit
             }
         }
     }
+
 
     public async onModuleInit(): Promise<void>
     {
