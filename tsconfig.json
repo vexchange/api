@@ -12,7 +12,8 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strict": true,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
@@ -21,6 +22,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@controllers/*": ["src/controllers/*"],
+      "@interfaces/*": ["src/interfaces/*"],
       "@services/*": ["src/services/*"],
       "@abi/*": ["abi/*"],
       "@test/*": ["test/*"],
