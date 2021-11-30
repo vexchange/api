@@ -11,7 +11,8 @@ import { Framework } from "@vechain/connex-framework";
 import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
-import { FACTORY_ADDRESS } from "vexchange-sdk";
+import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
+
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
@@ -22,8 +23,8 @@ export class OnchainDataService implements OnModuleInit
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
 
     public constructor(
-    @Inject(forwardRef(() => CoinGeckoService))
-    private readonly coingeckoService: CoinGeckoService,
+        @Inject(forwardRef(() => CoinGeckoService))
+        private readonly coingeckoService: CoinGeckoService,
     ) {}
 
     private get Connex(): Connex
@@ -57,17 +58,17 @@ export class OnchainDataService implements OnModuleInit
 
         method = this.FactoryContract.method(allPairs);
 
-        times(numPairs, async(i: number) =>
+        const promises: Promise<void>[] = times(numPairs, async(i: number) =>
         {
             const res: Connex.VM.Output & Connex.Thor.Account.WithDecoded = await method.call(i);
-            const pairAddress: string = res.decoded[0];
+            const pairAddress: string = ethers.utils.getAddress(res.decoded[0]);
             const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
 
-            const token0Address: string = (await pairContract.method(token0ABI).call())
-                .decoded[0];
+            const token0Address: string = ethers.utils.getAddress((await pairContract.method(token0ABI).call())
+                .decoded[0]);
 
-            const token1Address: string = (await pairContract.method(token1ABI).call())
-                .decoded[0];
+            const token1Address: string = ethers.utils.getAddress((await pairContract.method(token1ABI).call())
+                .decoded[0]);
 
             const token0: IToken = await this.fetchToken(token0Address);
             const token1: IToken = await this.fetchToken(token1Address);
@@ -131,10 +132,15 @@ export class OnchainDataService implements OnModuleInit
                 token1Volume: formatEther(accToken1Volume),
             };
         });
+      
+        await Promise.all(promises);
+        this.calculateUsdPrices();
     }
 
     private async fetchToken(address: string): Promise<IToken>
     {
+        if (address in this.tokens) return this.tokens[address];
+
         const nameABI: object = find(IERC20ABI, { name: "name" });
         const symbolABI: object = find(IERC20ABI, { name: "symbol" });
         const decimalsABI: object = find(IERC20ABI, { name: "decimals" });
@@ -142,22 +148,6 @@ export class OnchainDataService implements OnModuleInit
         const symbol: string = (
             await this.Connex.thor.account(address).method(symbolABI).call()
         ).decoded[0];
-
-        let price: number | undefined = undefined;
-
-        if (symbol === "WVET") price = this.coingeckoService.getVetPrice();
-
-        if (address in this.tokens)
-        {
-            const token: IToken = {
-                ...this.tokens[address],
-                usdPrice: price,
-            };
-
-            this.tokens[address] = token;
-
-            return token;
-        }
 
         const name: string = (
             await this.Connex.thor.account(address).method(nameABI).call()
@@ -171,13 +161,38 @@ export class OnchainDataService implements OnModuleInit
             name,
             symbol,
             contractAddress: address,
-            usdPrice: price,
+            usdPrice: undefined,
             decimals: parseInt(decimals),
         };
 
         this.tokens[address] = token;
         return token;
     }
+
+    private async calculateUsdPrices(): Promise<void>
+    {
+        this.tokens[WVET["1"].address].usdPrice = this.coingeckoService.getVetPrice();
+
+        for (const pairAddress in this.pairs)
+        {
+            const pair: IPair = this.pairs[pairAddress];
+            if (pair.token0.symbol !== "WVET" && pair.token1.symbol !== "WVET")
+            {
+                continue;
+            }
+            else if (pair.token0.symbol === "WVET")
+            {
+                this.tokens[pair.token1.contractAddress].usdPrice =
+                  this.coingeckoService.getVetPrice() * parseFloat(pair.price);
+            }
+            else if (pair.token1.symbol === "WVET")
+            {
+                this.tokens[pair.token0.contractAddress].usdPrice =
+                  this.coingeckoService.getVetPrice() / parseFloat(pair.price);
+            }
+        }
+    }
+
 
     public async onModuleInit(): Promise<void>
     {
