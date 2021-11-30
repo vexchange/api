@@ -1,18 +1,17 @@
-import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { Framework } from '@vechain/connex-framework';
-import { Driver, SimpleNet } from '@vechain/connex-driver';
-import { find } from 'lodash';
-import { VexchangeV2FactoryABI } from '@abi/VexchangeV2Factory';
-import { VexchangeV2PairABI } from '@abi/VexchangeV2Pair';
-import { IERC20ABI } from '@abi/IERC20';
-import { FACTORY_ADDRESS } from 'vexchange-sdk';
-import { ethers } from 'ethers';
-import { formatEther, parseUnits } from 'ethers/lib/utils';
-import { CoinGeckoService } from '@services/coin-gecko.service';
-import { Interval } from '@nestjs/schedule';
-import { IToken, ITokens } from '../interfaces/token';
-import { IPair, IPairs } from '../interfaces/pair';
-import { times } from 'lodash';
+import { IERC20ABI } from "@abi/IERC20";
+import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
+import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
+import { IPair, IPairs } from "@interfaces/pair";
+import { IToken, ITokens } from "@interfaces/token";
+import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Interval } from "@nestjs/schedule";
+import { CoinGeckoService } from "@services/coin-gecko.service";
+import { Driver, SimpleNet } from "@vechain/connex-driver";
+import { Framework } from "@vechain/connex-framework";
+import { BigNumber, ethers } from "ethers";
+import { formatEther, parseUnits } from "ethers/lib/utils";
+import { find, times } from "lodash";
+import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
@@ -21,7 +20,7 @@ export class OnchainDataService implements OnModuleInit
     private tokens: ITokens = {};
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
-  private readonly logger = new Logger(OnchainDataService.name, { timestamp: true });
+    private readonly logger: Logger = new Logger(OnchainDataService.name, { timestamp: true });
 
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
@@ -45,97 +44,96 @@ export class OnchainDataService implements OnModuleInit
     @Interval(60000)
     private async fetch(): Promise<void>
     {
-        return new Promise(async (resolve) => {
-      const allPairsLengthABI: object = find(VexchangeV2FactoryABI, {
-        name: "allPairsLength",
-      });
-      let method: Connex.Thor.Account.Method = this.FactoryContract.method(allPairsLengthABI);
-      const numPairs: number = parseInt((await method.call()).decoded[0]);
-      const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
-      const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
-      const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
-      const getReservesABI: object = find(VexchangeV2PairABI, { name: "getReserves" });
-      const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
+        const allPairsLengthABI: object = find(VexchangeV2FactoryABI, {
+            name: "allPairsLength",
+        });
+        let method: Connex.Thor.Account.Method = this.FactoryContract.method(allPairsLengthABI);
+        const numPairs: number = parseInt((await method.call()).decoded[0]);
+        const allPairs: object = find(VexchangeV2FactoryABI, { name: "allPairs" });
+        const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
+        const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
+        const getReservesABI: object = find(VexchangeV2PairABI, { name: "getReserves" });
+        const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
 
-       method = this.FactoryContract.method(allPairs);
+        method = this.FactoryContract.method(allPairs);
 
         const promises: Promise<void>[] = times(numPairs, async(i: number) =>
         {
             const res: Connex.VM.Output & Connex.Thor.Account.WithDecoded = await method.call(i);
-          const pairAddress: string = ethers.utils.getAddress(res.decoded[0]);
+            const pairAddress: string = ethers.utils.getAddress(res.decoded[0]);
             const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
 
-        const token0Address: string = ethers.utils.getAddress((await pairContract.method(token0ABI).call())
+            const token0Address: string = ethers.utils.getAddress((await pairContract.method(token0ABI).call())
                 .decoded[0]);
 
-            const token1Address: string = ethers.utils.getAddress( (await pairContract.method(token1ABI).call())
-          .decoded[0]);
+            const token1Address: string = ethers.utils.getAddress((await pairContract.method(token1ABI).call())
+                .decoded[0]);
 
-        const token0: IToken = await this.fetchToken(token0Address);
-        const token1: IToken = await this.fetchToken(token1Address);
+            const token0: IToken = await this.fetchToken(token0Address);
+            const token1: IToken = await this.fetchToken(token1Address);
 
-        const { reserve0, reserve1 } = (
-          await pairContract.method(getReservesABI).call()
-        ).decoded;
+            const { reserve0, reserve1 } = (
+                await pairContract.method(getReservesABI).call()
+            ).decoded;
 
-        // Accounts for tokens with different decimal places
-        const price: BigNumber = parseUnits(reserve0, 18 - token0.decimals)
-          .mul(parseUnits("1")) // For added precision for BigNumber arithmetic
-          .div(parseUnits(reserve1, 18 - token1.decimals));
+            // Accounts for tokens with different decimal places
+            const price: BigNumber = parseUnits(reserve0, 18 - token0.decimals)
+                .mul(parseUnits("1")) // For added precision for BigNumber arithmetic
+                .div(parseUnits(reserve1, 18 - token1.decimals));
 
-        const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
+            const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
 
-        const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded> = swapEvent.filter([]).range({
-          unit: "block",
-          // Since every block is 10s, 8640 blocks will be 24h
-          from: this.Connex.thor.status.head.number - 8640,
-          // Current block number
-          to: this.Connex.thor.status.head.number,
-        });
+            const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded>
+                  = swapEvent.filter([]).range({
+                      unit: "block",
+                      // Since every block is 10s, 8640 blocks will be 24h
+                      from: this.Connex.thor.status.head.number - 8640,
+                      // Current block number
+                      to: this.Connex.thor.status.head.number,
+                  });
 
-        let end: boolean = false;
-        let offset: number = 0;
-        const limit: number = 256;
+            let end: boolean = false;
+            let offset: number = 0;
+            const limit: number = 256;
 
-        let accToken0Volume: BigNumber = ethers.constants.Zero;
-        let accToken1Volume: BigNumber = ethers.constants.Zero;
+            let accToken0Volume: BigNumber = ethers.constants.Zero;
+            let accToken1Volume: BigNumber = ethers.constants.Zero;
 
-        // Need a while loop because we can only get
-        // up to 256 events each round using connex
-        while (!end)
-          {
+            // Need a while loop because we can only get
+            // up to 256 events each round using connex
+            while (!end)
+            {
                 const result: Connex.Thor.Filter.Row<"event", Connex.Thor.Account.WithDecoded>[] =
                     await swapFilter.apply(offset, limit);
 
-          for (const transaction of result)
-            {accToken0Volume = accToken0Volume
-              .add(transaction.decoded.amount0In)
-              .add(transaction.decoded.amount0Out);
-            accToken1Volume = accToken1Volume
-              .add(transaction.decoded.amount1In)
-              .add(transaction.decoded.amount1Out);
-          }
+                for (const transaction of result)
+                {
+                    accToken0Volume = accToken0Volume
+                        .add(transaction.decoded.amount0In)
+                        .add(transaction.decoded.amount0Out);
+                    accToken1Volume = accToken1Volume
+                        .add(transaction.decoded.amount1In)
+                        .add(transaction.decoded.amount1Out);
+                }
 
-          if (result.length === limit) offset += limit;
-          else end = true;
-        }
+                if (result.length === limit) offset += limit;
+                else end = true;
+            }
 
-        this.pairs[pairAddress] = {
-          address: pairAddress,
-          token0,
-          token1,
-          price: formatEther(price),
-          token0Reserve: formatEther(reserve0),
-          token1Reserve: formatEther(reserve1),
-          token0Volume: formatEther(accToken0Volume),
-          token1Volume: formatEther(accToken1Volume),
-        };
+            this.pairs[pairAddress] = {
+                address: pairAddress,
+                token0,
+                token1,
+                price: formatEther(price),
+                token0Reserve: formatEther(reserve0),
+                token1Reserve: formatEther(reserve1),
+                token0Volume: formatEther(accToken0Volume),
+                token1Volume: formatEther(accToken1Volume),
+            };
+        });
         await Promise.all(promises);
         this.calculateUsdPrices();
-        resolve();
-      });
-    });
-  }
+    }
 
     private async fetchToken(address: string): Promise<IToken>
     {
@@ -169,10 +167,9 @@ export class OnchainDataService implements OnModuleInit
         return token;
     }
 
-    private async calculateUsdPrices(): Promise<void>
+    private calculateUsdPrices(): void
     {
         this.tokens[WVET["1"].address].usdPrice = this.coingeckoService.getVetPrice();
-
         for (const pairAddress in this.pairs)
         {
             const pair: IPair = this.pairs[pairAddress];
@@ -193,7 +190,6 @@ export class OnchainDataService implements OnModuleInit
         }
     }
 
-
     public async onModuleInit(): Promise<void>
     {
         const net: SimpleNet = new SimpleNet("https://mainnet.veblocks.net");
@@ -202,9 +198,9 @@ export class OnchainDataService implements OnModuleInit
 
         this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
-      this.logger.log('Fetching on chain data...')
-      await this.fetch();
-      this.logger.log('Fetching on chain data completed')
+        this.logger.log("Fetching on chain data...");
+        await this.fetch();
+        this.logger.log("Fetching on chain data completed");
     }
 
     public getAllPairs(): IPairs

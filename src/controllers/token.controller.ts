@@ -10,7 +10,7 @@ export class TokenController
 {
     public constructor(private readonly onchainDataService: OnchainDataService) {}
 
-  @Get()
+    @Get()
     public getTokens(): ITokens
     {
         return this.onchainDataService.getAllTokens();
@@ -18,16 +18,16 @@ export class TokenController
 
 
     @Get(":address")
-  public getTokenFromAddress(@Param('address') address: string): IToken
-  {
-      if (params.address === undefined || !isAddress(address))
-      {
-          throw new BadRequestException("Invalid request");
-      }
+    public getTokenFromAddress(@Param("address") address: string): IToken
+    {
+        if (!isAddress(address))
+        {
+            throw new BadRequestException("Invalid request");
+        }
 
-      const token: IToken | undefined = this.onchainDataService.getToken(address);
-      if (token !== undefined) return token;
+        const token: IToken | undefined = this.onchainDataService.getToken(address);
+        if (token !== undefined) return token;
 
-      throw new NotFoundException("Token does not exist");
-  }
+        throw new NotFoundException("Token does not exist");
+    }
 }
