@@ -125,10 +125,10 @@ export class OnchainDataService implements OnModuleInit
                 token0,
                 token1,
                 price: formatEther(price),
-                token0Reserve: formatEther(reserve0),
-                token1Reserve: formatEther(reserve1),
-                token0Volume: formatEther(accToken0Volume),
-                token1Volume: formatEther(accToken1Volume),
+                token0Reserve: formatEther(parseUnits(reserve0, 18 - token0.decimals)),
+                token1Reserve: formatEther(parseUnits(reserve1, 18 - token1.decimals)),
+                token0Volume: formatEther(parseUnits(accToken0Volume.toString(), 18 - token0.decimals)),
+                token1Volume: formatEther(parseUnits(accToken1Volume.toString(), 18 - token1.decimals)),
             };
         });
         await Promise.all(promises);
