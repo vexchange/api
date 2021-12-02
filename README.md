@@ -27,14 +27,19 @@
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
 ## Installation
+The use of NVM (node version manager) is recommended.
 
 ```bash
+$ nvm use
 $ npm install
 ```
 
 ## Running the app
 
 ```bash
+# replicate .env
+$ cp .env.example .env
+
 # development
 $ npm run start
 
