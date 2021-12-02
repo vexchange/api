@@ -13,6 +13,7 @@ async function bootstrap()
     const app: NestFastifyApplication = await NestFactory.create<NestFastifyApplication>(
         AppModule,
         new FastifyAdapter(),
+        { cors: true },
     );
     const configService: ConfigService = app.get(ConfigService);
     const PORT: string =  <string>configService.get<string>("PORT");
