@@ -71,13 +71,12 @@ export class OnchainDataService implements OnModuleInit
             const token1Address: string = ethers.utils.getAddress((await pairContract.method(token1ABI).call())
                 .decoded[0]);
 
-            const token0: IToken = await this.mutex.runExclusive(() =>
+            const [token0, token1] = await this.mutex.runExclusive(() =>
             {
-                return this.fetchToken(token0Address);
-            });
-            const token1: IToken = await this.mutex.runExclusive(() =>
-            {
-                return this.fetchToken(token1Address);
+                return Promise.all([
+                    this.fetchToken(token0Address),
+                    this.fetchToken(token1Address),
+                ]);
             });
 
             const { reserve0, reserve1 } = (
