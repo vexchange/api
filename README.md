@@ -32,6 +32,14 @@
 $ npm install
 ```
 
+## SSL
+
+Self signed certificates are included for dev purposed. 
+These were generated with the following command: 
+```
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
+```
+
 ## Running the app
 
 ```bash
@@ -56,6 +64,54 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+```
+
+## Packaging
+
+```bash
+
+# Build the docker image
+$ docker build -t vex-api .
+
+# Confirm it exists
+$ docker image ls
+REPOSITORY                                      TAG            IMAGE ID       CREATED          SIZE
+vex/api                                         latest         6b6df8bff04f   40 seconds ago   1.14GB
+
+# Launch a container from the docker image
+$ docker run -p 80:80 vex/api
+
+# Stop the docker container
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                               NAMES
+ad818d2dd294   vex/api   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   modest_turing
+
+$ docker stop ad818d2dd294
+```
+
+## Publishing to AWS ECR
+
+```
+aws sts get-session-token --serial-number arn:aws:iam::134627471322:mfa/whoever@proxima.capital --token-code XXXXXX
+
+aws configure set aws_access_key_id XXXXXX
+aws configure set aws_secret_access_key XXXXXX
+aws configure set aws_session_token XXXXXX
+
+ aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com
+
+docker build -t vex-api .
+
+docker tag vex-api:latest 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com/vex-api:latest
+
+docker push 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com/vex-api:latest
+
+```
+
+## Deploying Docker Container via Elastic Beanstalk
+
+```
+
 ```
 
 ## Support
