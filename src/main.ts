@@ -12,7 +12,7 @@ async function bootstrap()
 {
     const app: NestFastifyApplication = await NestFactory.create<NestFastifyApplication>(
         AppModule,
-        new FastifyAdapter(),
+        new FastifyAdapter({ trustProxy: true }),
         { cors: true },
     );
     const configService: ConfigService = app.get(ConfigService);
