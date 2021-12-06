@@ -40,7 +40,14 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Deployment
+
+Deployment happens automatically, when pushing to the `prod` branch. 
+However, if the steps ever need to be done automatically, the below provides details: 
+
 ## Packaging
+
+To build and test a docker image locally: 
 
 ```bash
 # Build the docker image
@@ -60,12 +67,14 @@ $ docker stop ad818d2dd294
 
 ## Publishing to AWS ECR
 
+To login to AWS and publish manually to ECR: 
+
 ```
 aws sts get-session-token --serial-number arn:aws:iam::134627471322:mfa/whoever@proxima.capital --token-code XXXXXX
 aws configure set aws_access_key_id XXXXXX
 aws configure set aws_secret_access_key XXXXXX
 aws configure set aws_session_token XXXXXX
- aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com
+aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com
 docker build -t vex-api .
 docker tag vex-api:latest 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com/vex-api:latest
 docker push 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com/vex-api:latest
