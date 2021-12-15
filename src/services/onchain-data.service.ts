@@ -1,6 +1,7 @@
 import { IERC20ABI } from "@abi/IERC20";
 import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
+import { IMedianTrade, IMedianTrades } from "@interfaces/medianTrade";
 import { IPair, IPairs } from "@interfaces/pair";
 import { IToken, ITokens } from "@interfaces/token";
 import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
@@ -19,6 +20,7 @@ export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
     private tokens: ITokens = {};
+    private trades: IMedianTrades = {};
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
@@ -106,6 +108,9 @@ export class OnchainDataService implements OnModuleInit
             let accToken0Volume: BigNumber = ethers.constants.Zero;
             let accToken1Volume: BigNumber = ethers.constants.Zero;
 
+            const token0Trades: BigNumber[] = [];
+            const token1Trades: BigNumber[] = [];
+
             // Need a while loop because we can only get
             // up to 256 events each round using connex
             while (!end)
@@ -115,12 +120,18 @@ export class OnchainDataService implements OnModuleInit
 
                 for (const transaction of result)
                 {
+                    const token0Amt: string = transaction.decoded.amount0In === "0"
+                        ? transaction.decoded.amount0Out : transaction.decoded.amount0In;
+                    const token1Amt: string = transaction.decoded.amount1In === "0"
+                        ? transaction.decoded.amount1Out : transaction.decoded.amount1In;
+
                     accToken0Volume = accToken0Volume
-                        .add(transaction.decoded.amount0In)
-                        .add(transaction.decoded.amount0Out);
+                        .add(token0Amt);
                     accToken1Volume = accToken1Volume
-                        .add(transaction.decoded.amount1In)
-                        .add(transaction.decoded.amount1Out);
+                        .add(token1Amt);
+
+                    token0Trades.push(BigNumber.from(token0Amt));
+                    token1Trades.push(BigNumber.from(token1Amt));
                 }
 
                 if (result.length === limit) offset += limit;
@@ -137,9 +148,38 @@ export class OnchainDataService implements OnModuleInit
                 token0Volume: formatEther(parseUnits(accToken0Volume.toString(), 18 - token0.decimals)),
                 token1Volume: formatEther(parseUnits(accToken1Volume.toString(), 18 - token1.decimals)),
             };
+
+            this.trades[pairAddress] = {
+                token0,
+                token1,
+                token0MedianSize: formatEther(
+                    parseUnits(this.getMedian(token0Trades).toString(), 18 - token0.decimals),
+                ),
+                token1MedianSize: formatEther(
+                    parseUnits(this.getMedian(token1Trades).toString(), 18 - token1.decimals),
+                ),
+            };
         });
         await Promise.all(promises);
         this.calculateUsdPrices();
+    }
+
+    private getMedian(trades: BigNumber[]): BigNumber
+    {
+        if (trades.length === 0) return ethers.constants.Zero;
+
+        trades.sort((a: BigNumber, b: BigNumber) =>
+        {
+            if (a.sub(b).lt(0)) return -1;
+            else if (a.sub(b).gt(0)) return 1;
+            else return 0;
+        });
+
+        if (trades.length % 2) return trades[Math.floor(trades.length / 2)];
+
+        return trades[Math.floor(trades.length / 2)]
+            .add(trades[Math.floor(trades.length / 2) - 1])
+            .div(2);
     }
 
     private async fetchToken(address: string): Promise<IToken>
@@ -228,5 +268,15 @@ export class OnchainDataService implements OnModuleInit
     public getToken(tokenAddress: string): IToken | undefined
     {
         return this.tokens[tokenAddress];
+    }
+
+    public getMedianTrades(): IMedianTrades
+    {
+        return this.trades;
+    }
+
+    public getMedianTrade(pairAddress: string): IMedianTrade | undefined
+    {
+        return this.trades[pairAddress];
     }
 }
