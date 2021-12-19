@@ -1,0 +1,882 @@
+{
+  "0x06475FdE6209A089dD59EBf248480F918c859920": {
+    "token0": {
+      "name": "OceanEx Token",
+      "symbol": "OCE",
+      "contractAddress": "0x0CE6661b4ba86a0EA7cA2Bd86a0De87b0B860F14",
+      "usdPrice": 0.0011948455840104452,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "100000.0",
+    "token1MedianSize": "1403.172132309931104861"
+  },
+  "0x6c33A10d32aC466c324F23A949cC3F4B70AF4513": {
+    "token0": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Eight Hours Token",
+      "symbol": "EHrT",
+      "contractAddress": "0xf8e1fAa0367298b55F57Ed17F7a2FF3F5F1D1628",
+      "usdPrice": 2.2306952508852953e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "1100.0",
+    "token1MedianSize": "5131957.320099622080645201"
+  },
+  "0x2B6fC877fF5535b50f6C3e068BB436b16EC76fc5": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "4730.694165035439607839",
+    "token1MedianSize": "319.557217780979808252"
+  },
+  "0x2a0455D09c38c22824aD5225e0B56bD1D2D31561": {
+    "token0": {
+      "name": "HackenAI",
+      "symbol": "HAI",
+      "contractAddress": "0xaCc280010B2EE0efc770BCE34774376656D8cE14",
+      "usdPrice": 0.10736008831542469,
+      "decimals": 8
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "884.32776372",
+    "token1MedianSize": "1110.945668831370010537"
+  },
+  "0x3310a78e395d7642F3f5F816afA451E991948cE7": {
+    "token0": {
+      "name": "JUR",
+      "symbol": "JUR",
+      "contractAddress": "0x46209D5e5a49C1D403F4Ee3a0A88c3a27E29e58D",
+      "usdPrice": 0.0093097960928782,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "7944.392424636316867496",
+    "token1MedianSize": "1000.0"
+  },
+  "0x7451Ec32E3501AcEfF0320090c6A49A1C38b526a": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Decent.bet Token",
+      "symbol": "DBET",
+      "contractAddress": "0x1b8EC6C2A45ccA481Da6F243Df0d7A5744aFc1f8",
+      "usdPrice": 0.0008565678830870016,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xa14A5bDD5AB3D51062c5B243a2e6Fb0949fee2F3": {
+    "token0": {
+      "name": "Safe Haven Token",
+      "symbol": "SHA",
+      "contractAddress": "0x5db3C8A942333f6468176a870dB36eEf120a34DC",
+      "usdPrice": 0.0071733985867483115,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "44855.649881796786503691",
+    "token1MedianSize": "4000.0"
+  },
+  "0xE45F92B199388d4B1B0Fe9985f3831F3baf155c8": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VEED",
+      "symbol": "VEED",
+      "contractAddress": "0x67fD63f6068962937EC81AB3Ae3bF9871E524FC9",
+      "usdPrice": 0.004324067932838765,
+      "decimals": 18
+    },
+    "token0MedianSize": "666.830966348709659199",
+    "token1MedianSize": "768.202004440706086454"
+  },
+  "0x717829915367308FF113394eB84B174993e19b07": {
+    "token0": {
+      "name": "VPunks Token",
+      "symbol": "VPU",
+      "contractAddress": "0xb0821559723dB89e0Bd14FEE81E13a3aaE007e65",
+      "usdPrice": 0.04941563184890714,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "1910.219461102762880171",
+    "token1MedianSize": "1146.334340782476141801"
+  },
+  "0x3a75bEc9812b457570a194B7046eea1F56d1905f": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Madini",
+      "symbol": "MDN",
+      "contractAddress": "0x1b44a9718e12031530604137f854160759677192",
+      "usdPrice": 45.291320502658984,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x0aCe2050527Cc51396f5E2Ea6f2d65EaA3fC38F1": {
+    "token0": {
+      "name": "WorldOfV",
+      "symbol": "WoV",
+      "contractAddress": "0x170F4BA8e7ACF6510f55dB26047C83D13498AF8A",
+      "usdPrice": 0.017884426680444508,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Eight Hours Token",
+      "symbol": "EHrT",
+      "contractAddress": "0xf8e1fAa0367298b55F57Ed17F7a2FF3F5F1D1628",
+      "usdPrice": 2.2306952508852953e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x226585F8FB83690b65b58A48571B74fb358f7663": {
+    "token0": {
+      "name": "WorldOfV",
+      "symbol": "WoV",
+      "contractAddress": "0x170F4BA8e7ACF6510f55dB26047C83D13498AF8A",
+      "usdPrice": 0.017884426680444508,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VPunks Token",
+      "symbol": "VPU",
+      "contractAddress": "0xb0821559723dB89e0Bd14FEE81E13a3aaE007e65",
+      "usdPrice": 0.04941563184890714,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x9AEf5B2FCA94da71A6B13a817742A70d766174E9": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Safe Haven Token",
+      "symbol": "SHA",
+      "contractAddress": "0x5db3C8A942333f6468176a870dB36eEf120a34DC",
+      "usdPrice": 0.0071733985867483115,
+      "decimals": 18
+    },
+    "token0MedianSize": "1801.726859183416590605",
+    "token1MedianSize": "1118.995014320642415587"
+  },
+  "0x8b62C25B9C7972a382ec2B3D21Fe03B4A2f4C0B3": {
+    "token0": {
+      "name": "Decent.bet Token",
+      "symbol": "DBET",
+      "contractAddress": "0x1b8EC6C2A45ccA481Da6F243Df0d7A5744aFc1f8",
+      "usdPrice": 0.0008565678830870016,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "9944.315317621518048969",
+    "token1MedianSize": "100.0"
+  },
+  "0xD86bed355d9d6A4c951e96755Dd0c3cf004d6CD0": {
+    "token0": {
+      "name": "WorldOfV",
+      "symbol": "WoV",
+      "contractAddress": "0x170F4BA8e7ACF6510f55dB26047C83D13498AF8A",
+      "usdPrice": 0.017884426680444508,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "1591.452608218904429751",
+    "token1MedianSize": "334.482550349259645166"
+  },
+  "0x3A778a7B141e846c53D03BA4c1899326eE0D0c14": {
+    "token0": {
+      "name": "VEED",
+      "symbol": "VEED",
+      "contractAddress": "0x67fD63f6068962937EC81AB3Ae3bF9871E524FC9",
+      "usdPrice": 0.004324067932838765,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "10000.0",
+    "token1MedianSize": "522.763863652077050201"
+  },
+  "0x9417418D620Ce60388ca05Ad695caAF92b6a6E00": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "WorldOfV",
+      "symbol": "WoV",
+      "contractAddress": "0x170F4BA8e7ACF6510f55dB26047C83D13498AF8A",
+      "usdPrice": 0.017884426680444508,
+      "decimals": 18
+    },
+    "token0MedianSize": "1.855831103101058833",
+    "token1MedianSize": "323.793759131798207249"
+  },
+  "0x89D20C906feeD82e0F5a751e33ABE30f0EDf3971": {
+    "token0": {
+      "name": "Vexchange V2",
+      "symbol": "VEX-V2",
+      "contractAddress": "0x40b8eEc1C8383cfF54757b51a7Bc2D11f7d05384",
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Vexchange V2",
+      "symbol": "VEX-V2",
+      "contractAddress": "0xe80A352C9F14F5A8005c1066eA60c54b8ff48329",
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x669E8c6A1c63CB6c31CeeC8a5066B24fF1D2e481": {
+    "token0": {
+      "name": "OceanEx Token",
+      "symbol": "OCE",
+      "contractAddress": "0x0CE6661b4ba86a0EA7cA2Bd86a0De87b0B860F14",
+      "usdPrice": 0.0011948455840104452,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "1028.27678376264016266",
+    "token1MedianSize": "50.0"
+  },
+  "0x40b8eEc1C8383cfF54757b51a7Bc2D11f7d05384": {
+    "token0": {
+      "name": "GEMS",
+      "symbol": "GEMS",
+      "contractAddress": "0x28C61940bDcf5a67158d00657E8C3989E112eB38",
+      "usdPrice": 13.683354877898685,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "2.932494929004798425",
+    "token1MedianSize": "500.0"
+  },
+  "0x77ac21142f2A7651795756B5BACd45154733545c": {
+    "token0": {
+      "name": "TicTalk Token",
+      "symbol": "TIC",
+      "contractAddress": "0xa94A33f776073423E163088a5078feac31373990",
+      "usdPrice": 0.005208646094757047,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xA6A27dd4C2a9c17A43338323E82e079e23f9081A": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VPunks Token",
+      "symbol": "VPU",
+      "contractAddress": "0xb0821559723dB89e0Bd14FEE81E13a3aaE007e65",
+      "usdPrice": 0.04941563184890714,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xe80A352C9F14F5A8005c1066eA60c54b8ff48329": {
+    "token0": {
+      "name": "Madini",
+      "symbol": "MDN",
+      "contractAddress": "0x1b44a9718e12031530604137f854160759677192",
+      "usdPrice": 45.291320502658984,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x67dDA1f71FA5a6153471C41DdF1B447Fb66bc6d6": {
+    "token0": {
+      "name": "GEMS",
+      "symbol": "GEMS",
+      "contractAddress": "0x28C61940bDcf5a67158d00657E8C3989E112eB38",
+      "usdPrice": 13.683354877898685,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xCcdBAA63258AD945Ce4DCfFA4E09C62c9005B092": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Plair",
+      "symbol": "PLA",
+      "contractAddress": "0x89827F7bB951Fd8A56f8eF13C5bFEE38522F2E1F",
+      "usdPrice": 4.202682775615143e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x9eabfe7067f5Fa71FFC4C7A5e76130115f453cDC": {
+    "token0": {
+      "name": "Safe Haven Token",
+      "symbol": "SHA",
+      "contractAddress": "0x5db3C8A942333f6468176a870dB36eEf120a34DC",
+      "usdPrice": 0.0071733985867483115,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "10000.0",
+    "token1MedianSize": "11940.925903769417924287"
+  },
+  "0x54037c740c8a498966eB7a8f7B7B351b4BcF17a3": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Eight Hours Token",
+      "symbol": "EHrT",
+      "contractAddress": "0xf8e1fAa0367298b55F57Ed17F7a2FF3F5F1D1628",
+      "usdPrice": 2.2306952508852953e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x6A154288f7C27ee5246E3BfE8480DF8C860bD11E": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "OceanEx Token",
+      "symbol": "OCE",
+      "contractAddress": "0x0CE6661b4ba86a0EA7cA2Bd86a0De87b0B860F14",
+      "usdPrice": 0.0011948455840104452,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x0b48E7134ca7c3dB47F98A7122c843ed0de5AB5a": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "HackenAI",
+      "symbol": "HAI",
+      "contractAddress": "0xaCc280010B2EE0efc770BCE34774376656D8cE14",
+      "usdPrice": 0.10736008831542469,
+      "decimals": 8
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x244F2834a655A17AE16CCF69d24d2c6fbDcE3b04": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "OceanEx Token",
+      "symbol": "OCE",
+      "contractAddress": "0x0CE6661b4ba86a0EA7cA2Bd86a0De87b0B860F14",
+      "usdPrice": 0.0011948455840104452,
+      "decimals": 18
+    },
+    "token0MedianSize": "94.975",
+    "token1MedianSize": "434.882100912309084224"
+  },
+  "0x149E7ca2f16A87c23ca7d460c193194157f325b0": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VEED",
+      "symbol": "VEED",
+      "contractAddress": "0x67fD63f6068962937EC81AB3Ae3bF9871E524FC9",
+      "usdPrice": 0.004324067932838765,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.713519169788815484",
+    "token1MedianSize": "553.9908889069376285"
+  },
+  "0x179FF3Db06b3257F786694C32BffE9b3071A8D27": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "HackenAI",
+      "symbol": "HAI",
+      "contractAddress": "0xaCc280010B2EE0efc770BCE34774376656D8cE14",
+      "usdPrice": 0.10736008831542469,
+      "decimals": 8
+    },
+    "token0MedianSize": "160.87716501824818872",
+    "token1MedianSize": "0.29626226"
+  },
+  "0x09F579c0ebad0371da6F9E66Cc93199d6bc0ebCb": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "1035.0",
+    "token1MedianSize": "653.263076250635713722"
+  },
+  "0xa051Db301625039C0d5fd9a1F5A41fc57fE5a709": {
+    "token0": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "49365.694187731137412226",
+    "token1MedianSize": "3862.466711443375409634"
+  },
+  "0x9d874d6F92791fB111d00E71b35C3684eA667221": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VPunks Token",
+      "symbol": "VPU",
+      "contractAddress": "0xb0821559723dB89e0Bd14FEE81E13a3aaE007e65",
+      "usdPrice": 0.04941563184890714,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x6c98f06866A0A1a1D86dfF48e917A00c6FA59888": {
+    "token0": {
+      "name": "Plair",
+      "symbol": "PLA",
+      "contractAddress": "0x89827F7bB951Fd8A56f8eF13C5bFEE38522F2E1F",
+      "usdPrice": 4.202682775615143e-05,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "576045.988830638750879028",
+    "token1MedianSize": "300.0"
+  },
+  "0x516eCA119f673f6747c81189Bef4F14367c0c2B7": {
+    "token0": {
+      "name": "Yeet Coin",
+      "symbol": "YEET",
+      "contractAddress": "0xae4C53b120cba91a44832f875107cbc8FbEe185C",
+      "usdPrice": 0.00022148675210760996,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x17Dd47EbEd52bf828869da3bf1f49dF81002cFe5": {
+    "token0": {
+      "name": "Plair",
+      "symbol": "PLA",
+      "contractAddress": "0x89827F7bB951Fd8A56f8eF13C5bFEE38522F2E1F",
+      "usdPrice": 4.202682775615143e-05,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "96507.612771532888381792",
+    "token1MedianSize": "805.157360082652609846"
+  },
+  "0xa0346DCDa7293970d18Ef2885f8fcb369F91F1Dc": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token0MedianSize": "7058.426910746286149038",
+    "token1MedianSize": "9.688453342351886539"
+  },
+  "0xaC53e837d4D48FdbD9777D2534861D56092b775D": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Plair",
+      "symbol": "PLA",
+      "contractAddress": "0x89827F7bB951Fd8A56f8eF13C5bFEE38522F2E1F",
+      "usdPrice": 4.202682775615143e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "411.696409446064943001",
+    "token1MedianSize": "50260.909608604846121199"
+  },
+  "0xf4CF8f3886c2337A01269105DC6976727FC371e3": {
+    "token0": {
+      "name": "Plair",
+      "symbol": "PLA",
+      "contractAddress": "0x89827F7bB951Fd8A56f8eF13C5bFEE38522F2E1F",
+      "usdPrice": 4.202682775615143e-05,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Eight Hours Token",
+      "symbol": "EHrT",
+      "contractAddress": "0xf8e1fAa0367298b55F57Ed17F7a2FF3F5F1D1628",
+      "usdPrice": 2.2306952508852953e-05,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x54B720Cd291cCbF6d317FAfd90317A329dd338AA": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Mad Viking Games",
+      "symbol": "MVG",
+      "contractAddress": "0x99763494A7B545f983ee9Fe02a3b5441c7EF1396",
+      "usdPrice": 0.006677051175400196,
+      "decimals": 18
+    },
+    "token0MedianSize": "7.054031058499636092",
+    "token1MedianSize": "3941.887208447422219989"
+  },
+  "0x36D3a2A20975A51606359DFA0B92198aE37C8BA7": {
+    "token0": {
+      "name": "OceanEx Token",
+      "symbol": "OCE",
+      "contractAddress": "0x0CE6661b4ba86a0EA7cA2Bd86a0De87b0B860F14",
+      "usdPrice": 0.0011948455840104452,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Decent.bet Token",
+      "symbol": "DBET",
+      "contractAddress": "0x1b8EC6C2A45ccA481Da6F243Df0d7A5744aFc1f8",
+      "usdPrice": 0.0008565678830870016,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xC2f187882c4aAB13Da4073092e072cA23c1d74fF": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "WorldOfV",
+      "symbol": "WoV",
+      "contractAddress": "0x170F4BA8e7ACF6510f55dB26047C83D13498AF8A",
+      "usdPrice": 0.017884426680444508,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.050000000000000288",
+    "token1MedianSize": "249.353009259259258866"
+  },
+  "0x56afF784d7fd34149B46CE561282BBC4457027F0": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Safe Haven Token",
+      "symbol": "SHA",
+      "contractAddress": "0x5db3C8A942333f6468176a870dB36eEf120a34DC",
+      "usdPrice": 0.0071733985867483115,
+      "decimals": 18
+    },
+    "token0MedianSize": "5.795520168290260498",
+    "token1MedianSize": "2928.366169987924191678"
+  },
+  "0x39cd888a1583498AD30E716625AE1a00ff51286D": {
+    "token0": {
+      "name": "Vexchange",
+      "symbol": "VEX",
+      "contractAddress": "0x0BD802635eb9cEB3fCBe60470D2857B86841aab6",
+      "usdPrice": 3.8483104506514922,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Wrapped VET",
+      "symbol": "WVET",
+      "contractAddress": "0xD8CCDD85abDbF68DFEc95f06c973e87B1b5A9997",
+      "usdPrice": 0.083476,
+      "decimals": 18
+    },
+    "token0MedianSize": "9.0",
+    "token1MedianSize": "422.536992525026470696"
+  },
+  "0xf6421D46740360c38d3e127a1E275868ed855969": {
+    "token0": {
+      "name": "Safe Haven Token",
+      "symbol": "SHA",
+      "contractAddress": "0x5db3C8A942333f6468176a870dB36eEf120a34DC",
+      "usdPrice": 0.0071733985867483115,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "VEED",
+      "symbol": "VEED",
+      "contractAddress": "0x67fD63f6068962937EC81AB3Ae3bF9871E524FC9",
+      "usdPrice": 0.004324067932838765,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0x5d5694B92A4BbEEB519ECaE578db6a2009ef6A54": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "Yeet Coin",
+      "symbol": "YEET",
+      "contractAddress": "0xae4C53b120cba91a44832f875107cbc8FbEe185C",
+      "usdPrice": 0.00022148675210760996,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  },
+  "0xCe3fdb9d5ED50aE286f108C9c7097A3aE93CB647": {
+    "token0": {
+      "name": "VeThor",
+      "symbol": "VTHO",
+      "contractAddress": "0x0000000000000000000000000000456E65726779",
+      "usdPrice": 0.005916865903575104,
+      "decimals": 18
+    },
+    "token1": {
+      "name": "GEMS",
+      "symbol": "GEMS",
+      "contractAddress": "0x28C61940bDcf5a67158d00657E8C3989E112eB38",
+      "usdPrice": 13.683354877898685,
+      "decimals": 18
+    },
+    "token0MedianSize": "0.0",
+    "token1MedianSize": "0.0"
+  }
+}
