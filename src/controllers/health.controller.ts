@@ -1,8 +1,8 @@
-import { ApiTags } from "@nestjs/swagger";
 import { Controller, Get } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
 
-@Controller({ path: "health", version: "1" })
+@Controller({ path: "health" })
 @ApiTags("health")
 export class HealthController
 {
