@@ -84,6 +84,8 @@ docker push 134627471322.dkr.ecr.ap-northeast-1.amazonaws.com/vex-api:latest
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
+USD data (VET USD price) provided by [CoinGecko API](https://www.coingecko.com/en/api)
+
 ## Attribution
 
 Powered by [Nestjs](https://github.com/nestjs/nest)
