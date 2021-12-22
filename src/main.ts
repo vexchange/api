@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { ValidationPipe, VersioningType } from "@nestjs/common";
+import { ValidationPipe, VersioningType, VERSION_NEUTRAL } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
@@ -18,18 +18,18 @@ async function bootstrap()
     const configService: ConfigService = app.get(ConfigService);
     const PORT: string =  <string>configService.get<string>("PORT");
 
+    app.enableVersioning({
+        type: VersioningType.URI,
+        defaultVersion: VERSION_NEUTRAL,
+    });
+
     const config: Omit<OpenAPIObject, "paths"> = new DocumentBuilder()
         .setTitle("Vexchange API")
         .setVersion("1.0")
-        .addServer("v1")
         .build();
     const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
     writeFileSync("./swagger-spec.json", JSON.stringify(document));
     SwaggerModule.setup("/", app, document);
-
-    app.enableVersioning({
-        type: VersioningType.URI,
-    });
 
     app.enableShutdownHooks();
     await app.register(fastifyHelmet, {
