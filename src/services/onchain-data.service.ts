@@ -140,6 +140,7 @@ export class OnchainDataService implements OnModuleInit
         });
         await Promise.all(promises);
         this.calculateUsdPrices();
+        this.filterNonStandardPairsTokens();
     }
 
     private async fetchToken(address: string): Promise<IToken>
@@ -193,6 +194,26 @@ export class OnchainDataService implements OnModuleInit
             {
                 this.tokens[pair.token0.contractAddress].usdPrice =
                   this.coingeckoService.getVetPrice() / parseFloat(pair.price);
+            }
+        }
+    }
+
+    private filterNonStandardPairsTokens(): void
+    {
+        for (const pairAddress in this.pairs)
+        {
+            // Filters out pairs where either one token is an LP token
+            if (this.pairs[pairAddress].token0.contractAddress in this.pairs
+              || this.pairs[pairAddress].token1.contractAddress in this.pairs)
+            {
+                delete this.pairs[pairAddress];
+            }
+        }
+        for (const tokenAddress in this.tokens)
+        {
+            if (this.tokens[tokenAddress].usdPrice === undefined)
+            {
+                delete this.tokens[tokenAddress];
             }
         }
     }
