@@ -203,8 +203,10 @@ export class OnchainDataService implements OnModuleInit
         for (const pairAddress in this.pairs)
         {
             // Filters out pairs where either one token is an LP token
-            if (this.pairs[pairAddress].token0.contractAddress in this.pairs
-              || this.pairs[pairAddress].token1.contractAddress in this.pairs)
+            if (
+                   this.pairs[pairAddress].token0.contractAddress in this.pairs
+                || this.pairs[pairAddress].token1.contractAddress in this.pairs
+               )
             {
                 delete this.pairs[pairAddress];
             }
