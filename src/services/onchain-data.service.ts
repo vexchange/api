@@ -140,6 +140,7 @@ export class OnchainDataService implements OnModuleInit
         });
         await Promise.all(promises);
         this.calculateUsdPrices();
+        this.filterMissingUsdTokens();
     }
 
     private async fetchToken(address: string): Promise<IToken>
@@ -193,6 +194,17 @@ export class OnchainDataService implements OnModuleInit
             {
                 this.tokens[pair.token0.contractAddress].usdPrice =
                   this.coingeckoService.getVetPrice() / parseFloat(pair.price);
+            }
+        }
+    }
+
+    private filterMissingUsdTokens(): void
+    {
+        for (const tokenAddress in this.tokens)
+        {
+            if (this.tokens[tokenAddress].usdPrice === undefined)
+            {
+                delete this.tokens[tokenAddress];
             }
         }
     }
