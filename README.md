@@ -43,7 +43,7 @@ $ npm run test:cov
 ## Deployment
 
 Deployment happens automatically, when pushing to the `prod` branch. 
-However, if the steps ever need to be done automatically, the below provides details: 
+However, if the steps ever need to be done manually, the below provides details: 
 
 ## Packaging
 
@@ -55,13 +55,13 @@ $ docker build -t vex-api .
 # Confirm it exists
 $ docker image ls
 REPOSITORY                                      TAG            IMAGE ID       CREATED          SIZE
-vex/api                                         latest         6b6df8bff04f   40 seconds ago   1.14GB
+vex-api                                         latest         6b6df8bff04f   40 seconds ago   1.14GB
 # Launch a container from the docker image
-$ docker run -p 80:80 vex/api
+$ docker run -p 80:80 vex-api
 # Stop the docker container
 $ docker ps
 CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                               NAMES
-ad818d2dd294   vex/api   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   modest_turing
+ad818d2dd294   vex-api   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   modest_turing
 $ docker stop ad818d2dd294
 ```
 
