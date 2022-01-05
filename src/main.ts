@@ -25,7 +25,7 @@ async function bootstrap()
 
     const config: Omit<OpenAPIObject, "paths"> = new DocumentBuilder()
         .setTitle("Vexchange API")
-        .setVersion("1.0")
+        .setVersion(<string>process.env.npm_package_version)
         .build();
     const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
     writeFileSync("./swagger-spec.json", JSON.stringify(document));
