@@ -83,10 +83,15 @@ export class OnchainDataService implements OnModuleInit
                 await pairContract.method(getReservesABI).call()
             ).decoded;
 
+            const reserve0BN: BigNumber = parseUnits(reserve0, 18 - token0.decimals);
+            const reserve1BN: BigNumber = parseUnits(reserve1, 18 - token1.decimals);
+
             // Accounts for tokens with different decimal places
-            const price: BigNumber = parseUnits(reserve0, 18 - token0.decimals)
-                .mul(parseUnits("1")) // For added precision for BigNumber arithmetic
-                .div(parseUnits(reserve1, 18 - token1.decimals));
+            const price: BigNumber = (reserve0BN.eq(0) || reserve1BN.eq(0))
+                ? ethers.constants.Zero
+                : reserve0BN
+                    .mul(parseUnits("1")) // For added precision for BigNumber arithmetic
+                    .div(reserve1BN);
 
             const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
 
