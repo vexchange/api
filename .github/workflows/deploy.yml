@@ -42,10 +42,9 @@ jobs:
         BRANCH: ${{ steps.extract_branch.outputs.branch }}
       run: |
         # set ecr repo name basis current branch
-        if [ $BRANCH == prod ]
-        then
+        if [ $BRANCH == prod ]; then
           DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG
-        elif
+        else
           DOCKER_URL: $ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG
         fi
         # build a docker container and push it to ECR 
