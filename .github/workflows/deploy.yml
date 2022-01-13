@@ -1,8 +1,10 @@
+name: Deploy VEX API on AWS ECR
+
 on:
   push:
-    branches: [ prod ]
-
-name: Deploy VEX API on AWS ECR
+    branches: 
+      - prod
+      - dev
 
 jobs:
   deploy:
@@ -12,6 +14,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@afe4af09a72596f47d806ee5f8b2674ec07fdc73
+
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@ea7b857d8a33dc2fb4ef5a724500044281b49a5e
@@ -28,11 +35,19 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
-        IMAGE_TAG: latest 
+        ECR_REPOSITORY_PROD: ${{ secrets.REPO_NAME_PROD }}
+        ECR_REPOSITORY_DEV: ${{ secrets.REPO_NAME_DEV }}
+        IMAGE_TAG: latest
+        BRANCH: ${{ steps.extract_branch.outputs.branch }}
       run: |
-        # Build a docker container and push it to ECR 
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        # set ecr repo name basis current branch
+        if [ $BRANCH == prod ]; then
+          DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG
+        else
+          DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG
+        fi
+        # build a docker container and push it to ECR 
+        docker build -t $DOCKER_URL .
         echo "Pushing image to ECR..."
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker push $DOCKER_URL
+        echo "::set-output name=image::$DOCKER_URL"
