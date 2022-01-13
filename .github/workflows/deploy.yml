@@ -45,7 +45,7 @@ jobs:
         if [ $BRANCH == prod ]; then
           DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG
         else
-          DOCKER_URL: $ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG
+          DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_DEV:$IMAGE_TAG
         fi
         # build a docker container and push it to ECR 
         docker build -t $DOCKER_URL .
