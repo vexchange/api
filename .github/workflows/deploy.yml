@@ -47,7 +47,7 @@ jobs:
         ECR_REPOSITORY_PROD: ${{ secrets.REPO_NAME_PROD }}
         ECR_REPOSITORY_DEV: ${{ secrets.REPO_NAME_DEV }}
         APP_VERSION: ${{ steps.get-version.outputs.app-version }}
-        BRANCH: ${{ steps.get-branch.outputs.branch }}
+        BRANCH: ${{ steps.get-branch.outputs.branch-name }}
       run: |
         # create a unique build number, version may not change in package.json 
         IMAGE_TAG=$APP_VERSION.$(date +%Y%m%d%H%M%S)
@@ -80,7 +80,7 @@ jobs:
         ZIP_FILE: v${{ steps.build-image.outputs.image-tag }}.zip
         IMAGE_TAG: ${{ steps.build-image.outputs.image-tag }}
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-        BRANCH: ${{ steps.get-branch.outputs.branch }}
+        BRANCH: ${{ steps.get-branch.outputs.branch-name }}
       run: |
         APP_NAME=development-vex-api-app
         ENV_NAME=development-vex-api-env
