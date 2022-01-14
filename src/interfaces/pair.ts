@@ -5,6 +5,7 @@ export interface IPair {
   token0: IToken;
   token1: IToken;
   price: string;
+  fee: string;
   token0Reserve: string;
   token1Reserve: string;
   token0Volume: string;

@@ -55,6 +55,7 @@ export class OnchainDataService implements OnModuleInit
         const token0ABI: object = find(VexchangeV2PairABI, { name: "token0" });
         const token1ABI: object = find(VexchangeV2PairABI, { name: "token1" });
         const getReservesABI: object = find(VexchangeV2PairABI, { name: "getReserves" });
+        const swapFeeABI: object = find(VexchangeV2PairABI, { name: "swapFee" });
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
 
         method = this.FactoryContract.method(allPairs);
@@ -70,6 +71,8 @@ export class OnchainDataService implements OnModuleInit
 
             const token1Address: string = ethers.utils.getAddress((await pairContract.method(token1ABI).call())
                 .decoded[0]);
+
+            const swapFee: string = (await pairContract.method(swapFeeABI).call()).decoded[0];
 
             const [token0, token1] = await this.mutex.runExclusive(() =>
             {
@@ -137,6 +140,7 @@ export class OnchainDataService implements OnModuleInit
                 token0,
                 token1,
                 price: formatEther(price),
+                fee: `${(Number(swapFee) / 100)}%`,
                 token0Reserve: formatEther(parseUnits(reserve0, 18 - token0.decimals)),
                 token1Reserve: formatEther(parseUnits(reserve1, 18 - token1.decimals)),
                 token0Volume: formatEther(parseUnits(accToken0Volume.toString(), 18 - token0.decimals)),
