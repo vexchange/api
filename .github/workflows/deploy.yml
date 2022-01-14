@@ -80,6 +80,7 @@ jobs:
         ZIP_FILE: v${{ steps.build-image.outputs.image-tag }}.zip
         IMAGE_TAG: ${{ steps.build-image.outputs.image-tag }}
         AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        BRANCH: ${{ steps.get-branch.outputs.branch }}
       run: |
         APP_NAME=development-vex-api-app
         ENV_NAME=development-vex-api-env
