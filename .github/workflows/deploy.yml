@@ -73,7 +73,7 @@ jobs:
         # replace image_name environment variable in template file
         envsubst < dockerrun.template.json > Dockerrun.aws.json
         # create archive with docker run file
-        zip -r $ZIP_FILE dockerrun.aws.json
+        zip -r $ZIP_FILE Dockerrun.aws.json
 
     - name: Deploy Docker Run File
       env:
