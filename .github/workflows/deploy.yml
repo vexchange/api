@@ -5,6 +5,7 @@ on:
     branches: 
       - prod
       - dev
+      - feature/deploy-version-from-ecr
 
 jobs:
   deploy:
@@ -15,10 +16,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@afe4af09a72596f47d806ee5f8b2674ec07fdc73
 
-    - name: Extract branch name
+    - name: Get Branch Name
+      id: get-branch
       shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
+      run: echo ::set-output name=branch-name::${GITHUB_REF#refs/*/}
+
+    - name: Get Package Version
+      id: get-version
+      run: |
+        versionValue=$(cat package.json | jq '.version')
+        appVersion="${versionValue%\"}"
+        appVersion="${appVersion#\"}"
+        echo "::set-output name=app-version::$appVersion"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@ea7b857d8a33dc2fb4ef5a724500044281b49a5e
@@ -37,9 +46,12 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY_PROD: ${{ secrets.REPO_NAME_PROD }}
         ECR_REPOSITORY_DEV: ${{ secrets.REPO_NAME_DEV }}
-        IMAGE_TAG: latest
-        BRANCH: ${{ steps.extract_branch.outputs.branch }}
+        APP_VERSION: ${{ steps.get-version.outputs.app-version }}
+        BRANCH: ${{ steps.get-branch.outputs.branch }}
       run: |
+        # create a unique build number, version may not change in package.json 
+        IMAGE_TAG=$APP_VERSION.$(date +%Y%m%d%H%M%S)
+
         # set ecr repo name basis current branch
         if [ $BRANCH == prod ]; then
           DOCKER_URL=$ECR_REGISTRY/$ECR_REPOSITORY_PROD:$IMAGE_TAG
@@ -48,6 +60,42 @@ jobs:
         fi
         # build a docker container and push it to ECR 
         docker build -t $DOCKER_URL .
-        echo "Pushing image to ECR..."
+        echo "Pushing $BRANCH $IMAGE_TAG image to ECR..."
         docker push $DOCKER_URL
         echo "::set-output name=image::$DOCKER_URL"
+        echo "::set-output name=image-tag::$IMAGE_TAG"
+
+    - name: Generate Docker Run File
+      env:
+        IMAGE_NAME: ${{ steps.build-image.outputs.image }}
+        ZIP_FILE: v${{ steps.build-image.outputs.image-tag }}.zip
+      run: |
+        # replace image_name environment variable in template file
+        envsubst < dockerrun.template.json > Dockerrun.aws.json
+        # create archive with docker run file
+        zip -r $ZIP_FILE dockerrun.aws.json
+
+    - name: Deploy Docker Run File
+      env:
+        ZIP_FILE: v${{ steps.build-image.outputs.image-tag }}.zip
+        IMAGE_TAG: ${{ steps.build-image.outputs.image-tag }}
+        AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      run: |
+        APP_NAME=development-vex-api-app
+        ENV_NAME=development-vex-api-env
+
+        if [ $BRANCH == prod ]; then
+          APP_NAME=production-vex-api-app
+          ENV_NAME=production-vex-api-env
+        fi
+
+        # copy zip file to s3 bucket
+        aws s3 cp $ZIP_FILE s3://elasticbeanstalk-ap-northeast-1-${AWS_ACCOUNT_ID}/deployments/$BRANCH/
+
+        aws elasticbeanstalk create-application-version --application-name $APP_NAME \
+          --version-label $IMAGE_TAG \
+          --source-bundle S3Bucket=elasticbeanstalk-ap-northeast-1-${AWS_ACCOUNT_ID},S3Key=deployments/$BRANCH/$ZIP_FILE
+          
+        aws elasticbeanstalk update-environment --application-name $APP_NAME \
+          --environment-name $ENV_NAME \
+          --version-label $IMAGE_TAG
