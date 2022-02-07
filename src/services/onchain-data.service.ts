@@ -232,7 +232,8 @@ export class OnchainDataService implements OnModuleInit
         this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
         this.logger.log("Fetching on chain data...");
-        await this.fetch();
+        // await this.fetch();
+        await this.fetchTradingCompetitionRanking();
         this.logger.log("Fetching on chain data completed");
     }
 
@@ -252,9 +253,9 @@ export class OnchainDataService implements OnModuleInit
     }
 
     @Interval(60000)
-    public async fetchTradingCompetitionRanking()
+    public async fetchTradingCompetitionRanking(): Promise<void>
     {
-        const pairAddress = "0x717829915367308FF113394eB84B174993e19b07";
+        const pairAddress: string = "0x717829915367308FF113394eB84B174993e19b07";
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
         const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
         const swapEvent: Connex.Thor.Account.Event =
@@ -278,10 +279,13 @@ export class OnchainDataService implements OnModuleInit
         // up to 256 events each round using connex
         while (!end)
         {
-            const result: Connex.Thor.Filter.Row<"event", Connex.Thor.Account.WithDecoded>[] = await swapFilter.apply(offset, limit);
+            const result: Connex.Thor.Filter.Row<
+                "event", Connex.Thor.Account.WithDecoded
+            >[] = await swapFilter.apply(offset, limit);
 
             for (const transaction of result)
             {
+                // eslint-disable-next-line
                 if (!this.ranking[transaction.decoded.sender])
                 {
                     this.ranking[transaction.decoded.sender] = {
@@ -299,7 +303,7 @@ export class OnchainDataService implements OnModuleInit
         }
     }
 
-    public getTradingCompetitionRanking(): IRanking | undefined
+    public getTradingCompetitionRanking(): IRanking
     {
         return this.ranking;
     }
