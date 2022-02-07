@@ -13,12 +13,14 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
+import { IRanking } from "../interfaces/tradingCompetition";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
     private tokens: ITokens = {};
+    private ranking: IRanking = {};
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
@@ -247,6 +249,59 @@ export class OnchainDataService implements OnModuleInit
     public getAllTokens(): ITokens
     {
         return this.tokens;
+    }
+
+    @Interval(60000)
+    public async fetchTradingCompetitionRanking()
+    {
+        const pairAddress = "0x717829915367308FF113394eB84B174993e19b07";
+        const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
+        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
+        const swapEvent: Connex.Thor.Account.Event =
+        pairContract.event(swapEventABI);
+
+        const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded> = swapEvent
+            .filter([])
+            .range({
+                unit: "block",
+                // Since every block is 10s, 8640 blocks will be 24h
+                from: this.Connex.thor.status.head.number - 8640 * 1,
+                // Current block number
+                to: this.Connex.thor.status.head.number,
+            });
+
+        let end: boolean = false;
+        let offset: number = 0;
+        const limit: number = 256;
+
+        // Need a while loop because we can only get
+        // up to 256 events each round using connex
+        while (!end)
+        {
+            const result: Connex.Thor.Filter.Row<"event", Connex.Thor.Account.WithDecoded>[] = await swapFilter.apply(offset, limit);
+
+            for (const transaction of result)
+            {
+                if (!this.ranking[transaction.decoded.sender])
+                {
+                    this.ranking[transaction.decoded.sender] = {
+                        points: ethers.constants.Zero,
+                    };
+                }
+
+                this.ranking[transaction.decoded.sender].points = this.ranking[
+                    transaction.decoded.sender
+                ].points.add(transaction.decoded.amount0Out);
+            }
+
+            if (result.length === limit) offset += limit;
+            else end = true;
+        }
+    }
+
+    public getTradingCompetitionRanking(): IRanking | undefined
+    {
+        return this.ranking;
     }
 
     public getToken(tokenAddress: string): IToken | undefined

@@ -10,10 +10,8 @@ export class TradingCompetitionController
     public constructor(private readonly onchainDataService: OnchainDataService) {}
 
     @Get()
-    public getRanking()
+    public getTradingCompetitionRanking()
     {
-        // TODO: check the need of receiving the pairAddress and period via
-        const pairAddress = '0x717829915367308FF113394eB84B174993e19b07'
-        return this.onchainDataService.getTradingVolumePerPair(pairAddress);
+        return this.onchainDataService.getTradingCompetitionRanking();
     }
 }
