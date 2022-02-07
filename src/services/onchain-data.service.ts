@@ -223,8 +223,11 @@ export class OnchainDataService implements OnModuleInit
         this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
         this.logger.log("Fetching on chain data...");
-        await this.fetch();
+        // await this.fetch();
         this.logger.log("Fetching on chain data completed");
+        this.logger.log("Fetching trading volume...");
+        await this.getTradingVolumePerPair('0x717829915367308FF113394eB84B174993e19b07');
+        this.logger.log("Fetching trading volume completed");
     }
 
     public getAllPairs(): IPairs
@@ -239,6 +242,57 @@ export class OnchainDataService implements OnModuleInit
 
     public getAllTokens(): ITokens
     {
+        return this.tokens;
+    }
+
+    public async getTradingVolumePerPair(pairAddress: string)
+    {
+        const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
+        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
+        const swapEvent: Connex.Thor.Account.Event = pairContract.event(swapEventABI);
+
+            const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded>
+                  = swapEvent.filter([]).range({
+                      unit: "block",
+                      // Since every block is 10s, 8640 blocks will be 24h
+                      from: this.Connex.thor.status.head.number - 8640 * 1,
+                      // Current block number
+                      to: this.Connex.thor.status.head.number,
+                  });
+
+                  let end: boolean = false;
+            let offset: number = 0;
+            const limit: number = 256;
+
+            let accToken0Volume: BigNumber = ethers.constants.Zero;
+            let accToken1Volume: BigNumber = ethers.constants.Zero;
+            let ranking = {}
+
+            // Need a while loop because we can only get
+            // up to 256 events each round using connex
+            while (!end)
+            {
+                const result: Connex.Thor.Filter.Row<"event", Connex.Thor.Account.WithDecoded>[] =
+                    await swapFilter.apply(offset, limit);
+
+
+                    for (const transaction of result)
+                    {
+                        console.log(transaction.decoded.sender, ranking[transaction.decoded.sender])
+                        if (!ranking[transaction.decoded.sender]) ranking[transaction.decoded.sender] = {
+                            points: ethers.constants.Zero
+                        }
+
+                        ranking[transaction.decoded.sender].points = ranking[transaction.decoded.sender].points
+                        .add(transaction.decoded.amount0Out)
+                }
+
+                if (result.length === limit) offset += limit;
+                else end = true;
+            }
+
+            console.log(formatEther(ranking['0x6c0a6e1d922e0e63901301573370b932ae20dadb'].points))
+
         return this.tokens;
     }
 
