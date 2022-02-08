@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
-import { IRanking } from "../interfaces/tradingCompetition";
+import { IRanking, IRankingItemFormatted } from "../interfaces/tradingCompetition";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
@@ -21,6 +21,7 @@ export class OnchainDataService implements OnModuleInit
     private pairs: IPairs = {};
     private tokens: ITokens = {};
     private ranking: IRanking = {};
+    private rankingPairAddress = "0x717829915367308FF113394eB84B174993e19b07";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
@@ -232,7 +233,7 @@ export class OnchainDataService implements OnModuleInit
         this.mFactoryContract = this.Connex.thor.account(FACTORY_ADDRESS);
 
         this.logger.log("Fetching on chain data...");
-        // await this.fetch();
+        await this.fetch();
         await this.fetchTradingCompetitionRanking();
         this.logger.log("Fetching on chain data completed");
     }
@@ -255,9 +256,8 @@ export class OnchainDataService implements OnModuleInit
     @Interval(60000)
     public async fetchTradingCompetitionRanking(): Promise<void>
     {
-        const pairAddress: string = "0x717829915367308FF113394eB84B174993e19b07";
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
-        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(pairAddress);
+        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(this.rankingPairAddress);
         const swapEvent: Connex.Thor.Account.Event =
         pairContract.event(swapEventABI);
 
@@ -266,7 +266,7 @@ export class OnchainDataService implements OnModuleInit
             .range({
                 unit: "block",
                 // Since every block is 10s, 8640 blocks will be 24h
-                from: this.Connex.thor.status.head.number - 8640 * 1,
+                from: this.Connex.thor.status.head.number - 8640 * 60,
                 // Current block number
                 to: this.Connex.thor.status.head.number,
             });
@@ -295,17 +295,55 @@ export class OnchainDataService implements OnModuleInit
 
                 this.ranking[transaction.decoded.sender].points = this.ranking[
                     transaction.decoded.sender
-                ].points.add(transaction.decoded.amount0Out);
+                ].points
+                    .add(transaction.decoded.amount0In)
+                    .add(transaction.decoded.amount0Out);
             }
 
             if (result.length === limit) offset += limit;
             else end = true;
         }
+
+        this.getTradingCompetitionRanking()
     }
 
-    public getTradingCompetitionRanking(): IRanking
+    public getTradingCompetitionRanking(): IRankingItemFormatted[]
     {
-        return this.ranking;
+        const pairInfo = this.getPair(this.rankingPairAddress)
+
+        if (!pairInfo) return []
+
+        let rankingItems: IRankingItemFormatted[] = []
+        Object.keys(this.ranking).map((address) => {
+            const rankingRow = this.ranking[address]
+            rankingItems.push({
+                address,
+                points: rankingRow.points,
+                rank: 0
+            })
+        })
+
+        // sort by higher number of points
+        rankingItems.sort((a, b) => {
+            const pointsA = BigNumber.from(a.points)
+            const pointsB = BigNumber.from(b.points)
+
+            if (pointsA.gt(pointsB)) return -1
+            if (pointsA.lt(pointsB)) return 1
+            return 0
+        })
+
+        // construct formatted payload
+        let formattedRanking: IRankingItemFormatted[] = []
+        rankingItems.map((item, i) => {
+            formattedRanking.push({
+                address: item.address,
+                points: formatEther(parseUnits(item.points.toString(), 18 - pairInfo.token0.decimals)),
+                rank: i + 1
+            })
+        })
+
+        return formattedRanking;
     }
 
     public getToken(tokenAddress: string): IToken | undefined
