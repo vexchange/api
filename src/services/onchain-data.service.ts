@@ -13,14 +13,14 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
-import { IRanking, IRankingItem, IRankingItemFormatted } from "../interfaces/trading-competition";
+import { IRankingItem } from "../interfaces/trading-competition";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
     private tokens: ITokens = {};
-    private ranking: IRanking = {};
+    private pointsPerAddress: { [address: string]: { points: BigNumber } } = {};
     private readonly rankingPairAddress: string = "0x717829915367308FF113394eB84B174993e19b07";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
@@ -288,14 +288,14 @@ export class OnchainDataService implements OnModuleInit
             for (const transaction of result)
             {
                 // eslint-disable-next-line
-                if (!this.ranking[transaction.decoded.sender])
+                if (!this.pointsPerAddress[transaction.decoded.sender])
                 {
-                    this.ranking[transaction.decoded.sender] = {
+                    this.pointsPerAddress[transaction.decoded.sender] = {
                         points: ethers.constants.Zero,
                     };
                 }
 
-                this.ranking[transaction.decoded.sender].points = this.ranking[
+                this.pointsPerAddress[transaction.decoded.sender].points = this.pointsPerAddress[
                     transaction.decoded.sender
                 ].points
                     .add(transaction.decoded.amount0In)
@@ -307,7 +307,7 @@ export class OnchainDataService implements OnModuleInit
         }
     }
 
-    public getTradingCompetitionRanking(): IRankingItemFormatted[]
+    public getTradingCompetitionRanking(): IRankingItem[]
     {
         const pairInfo: IPair | undefined = this.getPair(this.rankingPairAddress);
 
@@ -315,19 +315,18 @@ export class OnchainDataService implements OnModuleInit
 
         try
         {
-            const rankingItems: IRankingItemFormatted[] = [];
-            Object.keys(this.ranking).map((address: string) =>
+            const rankingItems: IRankingItem[] = [];
+            Object.keys(this.pointsPerAddress).map((address: string) =>
             {
-                const rankingRow: IRankingItem = this.ranking[address];
                 rankingItems.push({
                     address,
-                    points: rankingRow.points,
+                    points: this.pointsPerAddress[address].points,
                     rank: 0,
                 });
             });
 
-            // sort by higher number of points
-            rankingItems.sort((a: IRankingItemFormatted, b: IRankingItemFormatted) =>
+            // sort by the highest number of points
+            rankingItems.sort((a: IRankingItem, b: IRankingItem) =>
             {
                 const pointsA: BigNumber = BigNumber.from(a.points);
                 const pointsB: BigNumber = BigNumber.from(b.points);
@@ -338,17 +337,17 @@ export class OnchainDataService implements OnModuleInit
             });
 
             // construct formatted payload
-            const formattedRanking: IRankingItemFormatted[] = [];
-            rankingItems.map((item: IRankingItemFormatted, i: number) =>
+            const ranking: IRankingItem[] = [];
+            rankingItems.map((item: IRankingItem, i: number) =>
             {
-                formattedRanking.push({
+                ranking.push({
                     address: item.address,
                     points: formatEther(parseUnits(item.points.toString(), 18 - pairInfo.token0.decimals)),
                     rank: i + 1,
                 });
             });
 
-            return formattedRanking;
+            return ranking;
         }
         catch (error)
         {

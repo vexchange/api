@@ -1,6 +1,6 @@
-import { IRankingItemFormatted } from "../../src/interfaces/trading-competition";
+import { IRankingItem } from "../../src/interfaces/trading-competition";
 
-export const fullRanking: IRankingItemFormatted[] = [
+export const fullRanking: IRankingItem[] = [
     {
         "address": "0x6c0a6e1d922e0e63901301573370b932ae20dadb",
         "points": "9503623.279943905630866475",
