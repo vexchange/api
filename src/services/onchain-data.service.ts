@@ -21,7 +21,7 @@ export class OnchainDataService implements OnModuleInit
     private pairs: IPairs = {};
     private tokens: ITokens = {};
     private pointsPerAddress: { [address: string]: { points: BigNumber } } = {};
-    private readonly rankingPairAddress: string = "0x717829915367308FF113394eB84B174993e19b07";
+    private readonly rankingPairAddress: string = "0x25491130A43d43AB0951d66CdF7ddaC7B1dB681b";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
