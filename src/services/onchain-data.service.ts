@@ -13,7 +13,7 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
-import { IRanking, IRankingItemFormatted } from "../interfaces/trading-competition";
+import { IRanking, IRankingItem, IRankingItemFormatted } from "../interfaces/trading-competition";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
@@ -21,7 +21,7 @@ export class OnchainDataService implements OnModuleInit
     private pairs: IPairs = {};
     private tokens: ITokens = {};
     private ranking: IRanking = {};
-    private rankingPairAddress = "0x717829915367308FF113394eB84B174993e19b07";
+    private readonly rankingPairAddress: string = "0x717829915367308FF113394eB84B174993e19b07";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
@@ -309,45 +309,51 @@ export class OnchainDataService implements OnModuleInit
 
     public getTradingCompetitionRanking(): IRankingItemFormatted[]
     {
-        const pairInfo = this.getPair(this.rankingPairAddress)
+        const pairInfo: IPair | undefined = this.getPair(this.rankingPairAddress);
 
-        if (!pairInfo) return []
+        if (!pairInfo) return [];
 
-        try {
-            let rankingItems: IRankingItemFormatted[] = []
-            Object.keys(this.ranking).map((address) => {
-                const rankingRow = this.ranking[address]
+        try
+        {
+            const rankingItems: IRankingItemFormatted[] = [];
+            Object.keys(this.ranking).map((address: string) =>
+            {
+                const rankingRow: IRankingItem = this.ranking[address];
                 rankingItems.push({
                     address,
                     points: rankingRow.points,
-                    rank: 0
-                })
-            })
+                    rank: 0,
+                });
+            });
 
             // sort by higher number of points
-            rankingItems.sort((a, b) => {
-                const pointsA = BigNumber.from(a.points)
-                const pointsB = BigNumber.from(b.points)
+            rankingItems.sort((a: IRankingItemFormatted, b: IRankingItemFormatted) =>
+            {
+                const pointsA: BigNumber = BigNumber.from(a.points);
+                const pointsB: BigNumber = BigNumber.from(b.points);
 
-                if (pointsA.gt(pointsB)) return -1
-                if (pointsA.lt(pointsB)) return 1
-                return 0
-            })
+                if (pointsA.gt(pointsB)) return -1;
+                if (pointsA.lt(pointsB)) return 1;
+                return 0;
+            });
 
             // construct formatted payload
-            let formattedRanking: IRankingItemFormatted[] = []
-            rankingItems.map((item, i) => {
+            const formattedRanking: IRankingItemFormatted[] = [];
+            rankingItems.map((item: IRankingItemFormatted, i: number) =>
+            {
                 formattedRanking.push({
                     address: item.address,
                     points: formatEther(parseUnits(item.points.toString(), 18 - pairInfo.token0.decimals)),
-                    rank: i + 1
-                })
-            })
+                    rank: i + 1,
+                });
+            });
 
             return formattedRanking;
-        } catch (error) {
-            this.logger.error(error)
-            return []
+        }
+        catch (error)
+        {
+            this.logger.error(error);
+            return [];
         }
     }
 

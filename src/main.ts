@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Logger, ValidationPipe, VersioningType, VERSION_NEUTRAL } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
