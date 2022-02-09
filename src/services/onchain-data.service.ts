@@ -302,8 +302,8 @@ export class OnchainDataService implements OnModuleInit
                     .add(transaction.decoded.amount0Out);
             }
 
-            if (result.length === limit) offset += limit;
-            else end = true;
+            if (result.length === limit) { offset += limit; }
+            else { end = true; }
         }
     }
 
