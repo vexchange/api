@@ -13,14 +13,14 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
-import { IRankingItem } from "../interfaces/trading-competition";
+import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
     private tokens: ITokens = {};
-    private pointsPerAddress: { [address: string]: { points: BigNumber } } = {};
+    private pointsPerAddress: IAddressPoints = {};
     private readonly rankingPairAddress: string = "0x25491130A43d43AB0951d66CdF7ddaC7B1dB681b";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
@@ -255,6 +255,11 @@ export class OnchainDataService implements OnModuleInit
         return this.tokens;
     }
 
+    public getToken(tokenAddress: string): IToken | undefined
+    {
+        return this.tokens[tokenAddress];
+    }
+
     @Interval(60000)
     public async fetchTradingCompetitionRanking(): Promise<void>
     {
@@ -354,10 +359,5 @@ export class OnchainDataService implements OnModuleInit
             this.logger.error(error);
             return [];
         }
-    }
-
-    public getToken(tokenAddress: string): IToken | undefined
-    {
-        return this.tokens[tokenAddress];
     }
 }

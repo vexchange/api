@@ -7,5 +7,7 @@ export interface IRankingItem {
 }
 
 export interface IAddressPoints {
-  [address: string]: BigNumber;
+  [address: string]: {
+    points: BigNumber;
+  }
 }
