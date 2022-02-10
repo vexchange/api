@@ -14,6 +14,7 @@ import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
@@ -30,6 +31,7 @@ export class OnchainDataService implements OnModuleInit
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
         private readonly coingeckoService: CoinGeckoService,
+        private readonly configService: ConfigService
     ) {}
 
     private get Connex(): Connex
@@ -264,7 +266,7 @@ export class OnchainDataService implements OnModuleInit
     public async fetchTradingCompetitionRanking(): Promise<void>
     {
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
-        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(this.rankingPairAddress);
+        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(<string>this.configService.get<string>('tradingCompetition.pairAddress'));
         const swapEvent: Connex.Thor.Account.Event =
         pairContract.event(swapEventABI);
 
@@ -273,9 +275,9 @@ export class OnchainDataService implements OnModuleInit
             .range({
                 unit: "block",
                 // Since every block is 10s, 8640 blocks will be 24h
-                from: this.Connex.thor.status.head.number - 8640 * 60,
+                from: this.configService.get<number>('tradingCompetition.fromBlock') || this.Connex.thor.status.head.number - 8640 * 60,
                 // Current block number
-                to: this.Connex.thor.status.head.number,
+                to: this.configService.get<number>('tradingCompetition.toBlock') || this.Connex.thor.status.head.number,
             });
 
         let pointsPerAddress: IAddressPoints = {}
@@ -317,7 +319,7 @@ export class OnchainDataService implements OnModuleInit
 
     public getTradingCompetitionRanking(): IRankingItem[]
     {
-        const pairInfo: IPair | undefined = this.getPair(this.rankingPairAddress);
+        const pairInfo: IPair | undefined = this.getPair(<string>this.configService.get<string>('tradingCompetition.pairAddress'));
 
         if (!pairInfo) return [];
 
