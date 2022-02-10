@@ -3,7 +3,9 @@ import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
 import { IPair, IPairs } from "@interfaces/pair";
 import { IToken, ITokens } from "@interfaces/token";
+import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
 import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
@@ -13,14 +15,12 @@ import { BigNumber, ethers } from "ethers";
 import { formatEther, parseUnits } from "ethers/lib/utils";
 import { find, times } from "lodash";
 import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
-import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
-import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
-    private ranking: Map<"string", BigNumber> = new Map()
+    private ranking: Map<"string", BigNumber> = new Map();
     private tokens: ITokens = {};
     private readonly rankingPairAddress: string = "0x2B6fC877fF5535b50f6C3e068BB436b16EC76fc5";
     private readonly mutex: Mutex = new Mutex();
@@ -31,7 +31,7 @@ export class OnchainDataService implements OnModuleInit
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
         private readonly coingeckoService: CoinGeckoService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
     ) {}
 
     private get Connex(): Connex
@@ -266,7 +266,10 @@ export class OnchainDataService implements OnModuleInit
     public async fetchTradingCompetitionRanking(): Promise<void>
     {
         const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
-        const pairContract: Connex.Thor.Account.Visitor = this.Connex.thor.account(<string>this.configService.get<string>('tradingCompetition.pairAddress'));
+        const pairContract: Connex.Thor.Account.Visitor =
+            this.Connex.thor.account(
+                <string> this.configService.get<string>("tradingCompetition.pairAddress"),
+            );
         const swapEvent: Connex.Thor.Account.Event =
         pairContract.event(swapEventABI);
 
@@ -275,12 +278,14 @@ export class OnchainDataService implements OnModuleInit
             .range({
                 unit: "block",
                 // Since every block is 10s, 8640 blocks will be 24h
-                from: this.configService.get<number>('tradingCompetition.fromBlock') || this.Connex.thor.status.head.number - 8640 * 60,
+                from: this.configService.get<number>("tradingCompetition.fromBlock") // eslint-disable-line
+                    || this.Connex.thor.status.head.number - 8640 * 60, // eslint-disable-line
                 // Current block number
-                to: this.configService.get<number>('tradingCompetition.toBlock') || this.Connex.thor.status.head.number,
+                to: this.configService.get<number>("tradingCompetition.toBlock") // eslint-disable-line
+                    || this.Connex.thor.status.head.number, // eslint-disable-line
             });
 
-        let pointsPerAddress: IAddressPoints = {}
+        const pointsPerAddress: IAddressPoints = {};
         let end: boolean = false;
         let offset: number = 0;
         const limit: number = 256;
@@ -295,9 +300,9 @@ export class OnchainDataService implements OnModuleInit
             for (const transaction of result)
             {
                 const points: BigNumber =
-                    pointsPerAddress[transaction.decoded.sender] || ethers.constants.Zero
+                    pointsPerAddress[transaction.decoded.sender] || ethers.constants.Zero; // eslint-disable-line
                 pointsPerAddress[transaction.decoded.sender] =
-                    points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out)
+                    points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out);
 
                 this.ranking.set(transaction.decoded.sender, pointsPerAddress[transaction.decoded.sender]);
             }
@@ -307,27 +312,33 @@ export class OnchainDataService implements OnModuleInit
         }
 
         // sort by the highest points and store it
-        this.ranking = new Map([...this.ranking.entries()].sort((a, b) => {
-            const pointsA: BigNumber = a[1]
-            const pointsB: BigNumber = b[1]
+        this.ranking = new Map([...this.ranking.entries()].sort(
+            (a: [string, BigNumber], b: [string, BigNumber]): number =>
+            {
+                const pointsA: BigNumber = a[1];
+                const pointsB: BigNumber = b[1];
 
-            if (pointsA.gt(pointsB)) return -1;
-            if (pointsA.lt(pointsB)) return 1;
-            return 0;
-        }));
+                if (pointsA.gt(pointsB)) return -1;
+                if (pointsA.lt(pointsB)) return 1;
+                return 0;
+            },
+        ));
     }
 
     public getTradingCompetitionRanking(): IRankingItem[]
     {
-        const pairInfo: IPair | undefined = this.getPair(<string>this.configService.get<string>('tradingCompetition.pairAddress'));
+        const pairInfo: IPair | undefined = this.getPair(
+            <string> this.configService.get<string>("tradingCompetition.pairAddress"),
+        );
 
         if (!pairInfo) return [];
 
-        return [...this.ranking.entries()].map((rankingItem) => {
+        return [...this.ranking.entries()].map((rankingItem: [string, BigNumber]) =>
+        {
             return {
                 address: rankingItem[0],
-                points: formatEther(parseUnits(rankingItem[1].toString(), 18 - pairInfo.token0.decimals))
-            }
-        }) as IRankingItem[]
+                points: formatEther(parseUnits(rankingItem[1].toString(), 18 - pairInfo.token0.decimals)),
+            };
+        }) as IRankingItem[];
     }
 }
