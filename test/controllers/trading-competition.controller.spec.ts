@@ -1,4 +1,5 @@
 import { TradingCompetitionController } from "@controllers/trading-competition.controller";
+import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { OnchainDataService } from "@services/onchain-data.service";
 import { CoinGeckoService } from "../../src/services/coin-gecko.service";
@@ -13,7 +14,7 @@ describe("TradingCompetitionController", () =>
     {
         const moduleRef: TestingModule = await Test.createTestingModule({
             controllers: [TradingCompetitionController],
-            providers: [CoinGeckoService, OnchainDataService],
+            providers: [CoinGeckoService, OnchainDataService, ConfigService],
         }).compile();
 
         onchainDataService = moduleRef.get<OnchainDataService>(OnchainDataService);
