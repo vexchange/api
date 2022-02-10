@@ -19,9 +19,9 @@ import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
+    private ranking: Map<"string", BigNumber> = new Map()
     private tokens: ITokens = {};
-    private pointsPerAddress: IAddressPoints = {};
-    private readonly rankingPairAddress: string = "0x25491130A43d43AB0951d66CdF7ddaC7B1dB681b";
+    private readonly rankingPairAddress: string = "0x2B6fC877fF5535b50f6C3e068BB436b16EC76fc5";
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
     private mFactoryContract: Connex.Thor.Account.Visitor | undefined = undefined;
@@ -278,10 +278,10 @@ export class OnchainDataService implements OnModuleInit
                 to: this.Connex.thor.status.head.number,
             });
 
+        let pointsPerAddress: IAddressPoints = {}
         let end: boolean = false;
         let offset: number = 0;
         const limit: number = 256;
-
         // Need a while loop because we can only get
         // up to 256 events each round using connex
         while (!end)
@@ -292,24 +292,27 @@ export class OnchainDataService implements OnModuleInit
 
             for (const transaction of result)
             {
-                // eslint-disable-next-line
-                if (!this.pointsPerAddress[transaction.decoded.sender])
-                {
-                    this.pointsPerAddress[transaction.decoded.sender] = {
-                        points: ethers.constants.Zero,
-                    };
-                }
+                const points: BigNumber =
+                    pointsPerAddress[transaction.decoded.sender] || ethers.constants.Zero
+                pointsPerAddress[transaction.decoded.sender] =
+                    points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out)
 
-                this.pointsPerAddress[transaction.decoded.sender].points = this.pointsPerAddress[
-                    transaction.decoded.sender
-                ].points
-                    .add(transaction.decoded.amount0In)
-                    .add(transaction.decoded.amount0Out);
+                this.ranking.set(transaction.decoded.sender, pointsPerAddress[transaction.decoded.sender]);
             }
 
             if (result.length === limit) { offset += limit; }
             else { end = true; }
         }
+
+        // sort by the highest points and store it
+        this.ranking = new Map([...this.ranking.entries()].sort((a, b) => {
+            const pointsA: BigNumber = a[1]
+            const pointsB: BigNumber = b[1]
+
+            if (pointsA.gt(pointsB)) return -1;
+            if (pointsA.lt(pointsB)) return 1;
+            return 0;
+        }));
     }
 
     public getTradingCompetitionRanking(): IRankingItem[]
@@ -318,46 +321,11 @@ export class OnchainDataService implements OnModuleInit
 
         if (!pairInfo) return [];
 
-        try
-        {
-            const rankingItems: IRankingItem[] = [];
-            Object.keys(this.pointsPerAddress).map((address: string) =>
-            {
-                rankingItems.push({
-                    address,
-                    points: this.pointsPerAddress[address].points,
-                    rank: 0,
-                });
-            });
-
-            // sort by the highest number of points
-            rankingItems.sort((a: IRankingItem, b: IRankingItem) =>
-            {
-                const pointsA: BigNumber = BigNumber.from(a.points);
-                const pointsB: BigNumber = BigNumber.from(b.points);
-
-                if (pointsA.gt(pointsB)) return -1;
-                if (pointsA.lt(pointsB)) return 1;
-                return 0;
-            });
-
-            // construct formatted payload
-            const ranking: IRankingItem[] = [];
-            rankingItems.map((item: IRankingItem, i: number) =>
-            {
-                ranking.push({
-                    address: item.address,
-                    points: formatEther(parseUnits(item.points.toString(), 18 - pairInfo.token0.decimals)),
-                    rank: i + 1,
-                });
-            });
-
-            return ranking;
-        }
-        catch (error)
-        {
-            this.logger.error(error);
-            return [];
-        }
+        return [...this.ranking.entries()].map((rankingItem) => {
+            return {
+                address: rankingItem[0],
+                points: formatEther(parseUnits(rankingItem[1].toString(), 18 - pairInfo.token0.decimals))
+            }
+        }) as IRankingItem[]
     }
 }

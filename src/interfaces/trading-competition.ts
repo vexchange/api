@@ -1,13 +1,10 @@
 import { BigNumber } from "ethers";
 
 export interface IRankingItem {
-  rank: number;
   address: string;
-  points: string | BigNumber;
+  points: string;
 }
 
 export interface IAddressPoints {
-  [address: string]: {
-    points: BigNumber;
-  }
+  [address: string]: BigNumber;
 }
