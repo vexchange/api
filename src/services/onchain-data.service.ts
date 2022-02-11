@@ -138,8 +138,8 @@ export class OnchainDataService implements OnModuleInit
                         .add(transaction.decoded.amount1Out);
                 }
 
-                if (result.length === limit) offset += limit;
-                else end = true;
+                if (result.length === limit) { offset += limit; }
+                else { end = true; }
             }
 
             this.pairs[pairAddress] = {
