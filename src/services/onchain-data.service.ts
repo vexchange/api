@@ -300,11 +300,11 @@ export class OnchainDataService implements OnModuleInit
             for (const transaction of result)
             {
                 const points: BigNumber =
-                    pointsPerAddress[transaction.decoded.sender] || ethers.constants.Zero; // eslint-disable-line
-                pointsPerAddress[transaction.decoded.sender] =
+                    pointsPerAddress[transaction.decoded.to] || ethers.constants.Zero; // eslint-disable-line
+                pointsPerAddress[transaction.decoded.to] =
                     points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out);
 
-                this.ranking.set(transaction.decoded.sender, pointsPerAddress[transaction.decoded.sender]);
+                this.ranking.set(transaction.decoded.to, pointsPerAddress[transaction.decoded.to]);
             }
 
             if (result.length === limit) { offset += limit; }
