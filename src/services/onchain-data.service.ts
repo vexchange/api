@@ -20,7 +20,7 @@ import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
-    private ranking: Map<"string", BigNumber> = new Map();
+    private ranking: Map<string, BigNumber> = new Map();
     private tokens: ITokens = {};
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
@@ -299,11 +299,11 @@ export class OnchainDataService implements OnModuleInit
             for (const transaction of result)
             {
                 const points: BigNumber =
-                    pointsPerAddress[transaction.decoded.to] || ethers.constants.Zero; // eslint-disable-line
-                pointsPerAddress[transaction.decoded.to] =
+                    pointsPerAddress[transaction.meta.txOrigin] || ethers.constants.Zero; // eslint-disable-line
+                pointsPerAddress[transaction.meta.txOrigin] =
                     points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out);
 
-                this.ranking.set(transaction.decoded.to, pointsPerAddress[transaction.decoded.to]);
+                this.ranking.set(transaction.meta.txOrigin, pointsPerAddress[transaction.meta.txOrigin]);
             }
 
             if (result.length === limit) { offset += limit; }
