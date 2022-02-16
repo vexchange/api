@@ -1,4 +1,4 @@
-import { IRankingItem } from "../../src/interfaces/trading-competition";
+import { IRankingItem } from "@interfaces/trading-competition";
 
 export const fullRanking: IRankingItem[] = [
     {
