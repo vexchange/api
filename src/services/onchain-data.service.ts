@@ -3,7 +3,9 @@ import { VexchangeV2FactoryABI } from "@abi/VexchangeV2Factory";
 import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
 import { IPair, IPairs } from "@interfaces/pair";
 import { IToken, ITokens } from "@interfaces/token";
+import { IAddressPoints, IRankingItem } from "@interfaces/trading-competition";
 import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
@@ -18,6 +20,7 @@ import { FACTORY_ADDRESS, WVET } from "vexchange-sdk";
 export class OnchainDataService implements OnModuleInit
 {
     private pairs: IPairs = {};
+    private ranking: Map<string, BigNumber> = new Map();
     private tokens: ITokens = {};
     private readonly mutex: Mutex = new Mutex();
     private mConnex: Connex | undefined = undefined;
@@ -27,6 +30,7 @@ export class OnchainDataService implements OnModuleInit
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
         private readonly coingeckoService: CoinGeckoService,
+        private readonly configService: ConfigService,
     ) {}
 
     private get Connex(): Connex
@@ -133,8 +137,8 @@ export class OnchainDataService implements OnModuleInit
                         .add(transaction.decoded.amount1Out);
                 }
 
-                if (result.length === limit) offset += limit;
-                else end = true;
+                if (result.length === limit) { offset += limit; }
+                else { end = true; }
             }
 
             this.pairs[pairAddress] = {
@@ -232,6 +236,9 @@ export class OnchainDataService implements OnModuleInit
         this.logger.log("Fetching on chain data...");
         await this.fetch();
         this.logger.log("Fetching on chain data completed");
+        this.logger.log("Fetching trading competition ranking...");
+        await this.fetchTradingCompetitionRanking();
+        this.logger.log("Fetching trading competition ranking completed");
     }
 
     public getAllPairs(): IPairs
@@ -252,5 +259,85 @@ export class OnchainDataService implements OnModuleInit
     public getToken(tokenAddress: string): IToken | undefined
     {
         return this.tokens[tokenAddress];
+    }
+
+    @Interval(60000)
+    public async fetchTradingCompetitionRanking(): Promise<void>
+    {
+        const swapEventABI: object = find(VexchangeV2PairABI, { name: "Swap" });
+        const pairContract: Connex.Thor.Account.Visitor =
+            this.Connex.thor.account(
+                <string> this.configService.get<string>("tradingCompetition.pairAddress"),
+            );
+        const swapEvent: Connex.Thor.Account.Event =
+        pairContract.event(swapEventABI);
+
+        const swapFilter: Connex.Thor.Filter<"event", Connex.Thor.Account.WithDecoded> = swapEvent
+            .filter([])
+            .range({
+                unit: "block",
+                // Since every block is 10s, 8640 blocks will be 24h
+                from: this.configService.get<number>("tradingCompetition.fromBlock") // eslint-disable-line
+                    || this.Connex.thor.status.head.number - 8640 * 60, // eslint-disable-line
+                // Current block number
+                to: this.configService.get<number>("tradingCompetition.toBlock") // eslint-disable-line
+                    || this.Connex.thor.status.head.number, // eslint-disable-line
+            });
+
+        const pointsPerAddress: IAddressPoints = {};
+        let end: boolean = false;
+        let offset: number = 0;
+        const limit: number = 256;
+        // Need a while loop because we can only get
+        // up to 256 events each round using connex
+        while (!end)
+        {
+            const result: Connex.Thor.Filter.Row<
+                "event", Connex.Thor.Account.WithDecoded
+            >[] = await swapFilter.apply(offset, limit);
+
+            for (const transaction of result)
+            {
+                const points: BigNumber =
+                    pointsPerAddress[transaction.meta.txOrigin] || ethers.constants.Zero; // eslint-disable-line
+                pointsPerAddress[transaction.meta.txOrigin] =
+                    points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out);
+
+                this.ranking.set(transaction.meta.txOrigin, pointsPerAddress[transaction.meta.txOrigin]);
+            }
+
+            if (result.length === limit) { offset += limit; }
+            else { end = true; }
+        }
+
+        // sort by the highest points and store it
+        this.ranking = new Map([...this.ranking.entries()].sort(
+            (a: [string, BigNumber], b: [string, BigNumber]): number =>
+            {
+                const pointsA: BigNumber = a[1];
+                const pointsB: BigNumber = b[1];
+
+                if (pointsA.gt(pointsB)) return -1;
+                if (pointsA.lt(pointsB)) return 1;
+                return 0;
+            },
+        ));
+    }
+
+    public getTradingCompetitionRanking(): IRankingItem[]
+    {
+        const pairInfo: IPair | undefined = this.getPair(
+            <string> this.configService.get<string>("tradingCompetition.pairAddress"),
+        );
+
+        if (!pairInfo) return [];
+
+        return [...this.ranking.entries()].map((rankingItem: [string, BigNumber]) =>
+        {
+            return {
+                address: rankingItem[0],
+                points: formatEther(parseUnits(rankingItem[1].toString(), 18 - pairInfo.token0.decimals)),
+            };
+        }) as IRankingItem[];
     }
 }
