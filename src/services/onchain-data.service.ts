@@ -276,12 +276,8 @@ export class OnchainDataService implements OnModuleInit
             .filter([])
             .range({
                 unit: "block",
-                // Since every block is 10s, 8640 blocks will be 24h
-                from: this.configService.get<number>("tradingCompetition.fromBlock") // eslint-disable-line
-                    || this.Connex.thor.status.head.number - 8640 * 60, // eslint-disable-line
-                // Current block number
-                to: this.configService.get<number>("tradingCompetition.toBlock") // eslint-disable-line
-                    || this.Connex.thor.status.head.number, // eslint-disable-line
+                from: this.configService.get<number>("tradingCompetition.fromBlock") || 0,
+                to: this.configService.get<number>("tradingCompetition.toBlock") || 0, // eslint-disable-line
             });
 
         const pointsPerAddress: IAddressPoints = {};
@@ -317,8 +313,8 @@ export class OnchainDataService implements OnModuleInit
                 const pointsA: BigNumber = a[1];
                 const pointsB: BigNumber = b[1];
 
-                if (pointsA.gt(pointsB)) return -1;
-                if (pointsA.lt(pointsB)) return 1;
+                if (pointsA.gte(pointsB)) return -1;
+                if (pointsA.lte(pointsB)) return 1;
                 return 0;
             },
         ));
