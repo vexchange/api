@@ -317,8 +317,8 @@ export class OnchainDataService implements OnModuleInit
                 const pointsA: BigNumber = a[1];
                 const pointsB: BigNumber = b[1];
 
-                if (pointsA.gt(pointsB)) return -1;
-                if (pointsA.lt(pointsB)) return 1;
+                if (pointsA.gte(pointsB)) return -1;
+                if (pointsA.lte(pointsB)) return 1;
                 return 0;
             },
         ));
