@@ -154,6 +154,7 @@ export class OnchainDataService implements OnModuleInit
                 token1Volume: formatEther(parseUnits(accToken1Volume.toString(), 18 - token1.decimals)),
             };
         });
+        
         await Promise.all(promises);
         this.calculateUsdPrices();
         this.filterMissingUsdTokens();
