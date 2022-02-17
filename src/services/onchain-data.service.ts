@@ -288,6 +288,7 @@ export class OnchainDataService implements OnModuleInit
         let end: boolean = false;
         let offset: number = 0;
         const limit: number = 256;
+        let updatedRanking: Map<string, BigNumber> = new Map();
         // Need a while loop because we can only get
         // up to 256 events each round using connex
         while (!end)
@@ -303,7 +304,7 @@ export class OnchainDataService implements OnModuleInit
                 pointsPerAddress[transaction.meta.txOrigin] =
                     points.add(transaction.decoded.amount0In).add(transaction.decoded.amount0Out);
 
-                this.ranking.set(transaction.meta.txOrigin, pointsPerAddress[transaction.meta.txOrigin]);
+                updatedRanking.set(transaction.meta.txOrigin, pointsPerAddress[transaction.meta.txOrigin]);
             }
 
             if (result.length === limit) { offset += limit; }
@@ -311,7 +312,7 @@ export class OnchainDataService implements OnModuleInit
         }
 
         // sort by the highest points and store it
-        this.ranking = new Map([...this.ranking.entries()].sort(
+        this.ranking = new Map([...updatedRanking.entries()].sort(
             (a: [string, BigNumber], b: [string, BigNumber]): number =>
             {
                 const pointsA: BigNumber = a[1];
