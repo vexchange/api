@@ -227,7 +227,7 @@ export class OnchainDataService implements OnModuleInit
 
     public async onModuleInit(): Promise<void>
     {
-        const net: SimpleNet = new SimpleNet("https://mainnet.veblocks.net");
+        const net: SimpleNet = new SimpleNet("https://jp.mainnet-node.vexchange.io/");
         const driver: Driver = await Driver.connect(net);
         this.mConnex = new Framework(driver);
 
