@@ -14,7 +14,7 @@ async function bootstrap()
     // don't throw when Content-Type is different from 'application/json' and 'text/plain'
     // https://www.fastify.io/docs/latest/Reference/ContentTypeParser/#catch-all
     // eslint-disable-next-line
-    fastifyAdapter.getInstance().addContentTypeParser("*", (request: any, payload: any, done) => done(null));
+    fastifyAdapter.getInstance().addContentTypeParser("*", (request, payload, done) => done(null));
 
     const app: NestFastifyApplication = await NestFactory.create<NestFastifyApplication>(
         AppModule,
