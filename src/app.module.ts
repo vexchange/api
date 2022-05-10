@@ -1,7 +1,6 @@
 import { HealthController } from "@controllers/health.controller";
 import { PairController } from "@controllers/pair.controller";
 import { TokenController } from "@controllers/token.controller";
-import { TradingCompetitionController } from "@controllers/trading-competition.controller";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
@@ -18,7 +17,7 @@ import { config } from "@src/config";
         // For scheduling recurring tasks
         ScheduleModule.forRoot(),
     ],
-    controllers: [PairController, TokenController, TradingCompetitionController, HealthController],
+    controllers: [PairController, TokenController, HealthController],
     providers: [
         OnchainDataService,
         CoinGeckoService,
