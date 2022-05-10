@@ -9,9 +9,16 @@ import { writeFileSync } from "fs";
 
 async function bootstrap()
 {
+    const fastifyAdapter: FastifyAdapter = new FastifyAdapter({ logger: false });
+
+    // don't throw when Content-Type is different from 'application/json' and 'text/plain'
+    // https://www.fastify.io/docs/latest/Reference/ContentTypeParser/#catch-all
+    // eslint-disable-next-line
+    fastifyAdapter.getInstance().addContentTypeParser("*", (request, payload, done) => done(null));
+
     const app: NestFastifyApplication = await NestFactory.create<NestFastifyApplication>(
         AppModule,
-        new FastifyAdapter(),
+        fastifyAdapter,
         { cors: true },
     );
     const logger: Logger = new Logger("NestApplication", { timestamp: true });
