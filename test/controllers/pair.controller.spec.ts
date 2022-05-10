@@ -1,5 +1,6 @@
 import { PairController } from "@controllers/pair.controller";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { OnchainDataService } from "@services/onchain-data.service";
@@ -14,7 +15,7 @@ describe("PairController", () =>
     {
         const moduleRef: TestingModule = await Test.createTestingModule({
             controllers: [PairController],
-            providers: [CoinGeckoService, OnchainDataService],
+            providers: [CoinGeckoService, OnchainDataService, ConfigService],
         }).compile();
 
         onchainDataService = moduleRef.get<OnchainDataService>(OnchainDataService);

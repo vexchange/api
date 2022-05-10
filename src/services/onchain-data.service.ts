@@ -4,6 +4,7 @@ import { VexchangeV2PairABI } from "@abi/VexchangeV2Pair";
 import { IPair, IPairs } from "@interfaces/pair";
 import { IToken, ITokens } from "@interfaces/token";
 import { forwardRef, Inject, Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Interval } from "@nestjs/schedule";
 import { CoinGeckoService } from "@services/coin-gecko.service";
 import { Driver, SimpleNet } from "@vechain/connex-driver";
@@ -27,6 +28,7 @@ export class OnchainDataService implements OnModuleInit
     public constructor(
         @Inject(forwardRef(() => CoinGeckoService))
         private readonly coingeckoService: CoinGeckoService,
+        private readonly configService: ConfigService,
     ) {}
 
     private get Connex(): Connex
@@ -133,8 +135,8 @@ export class OnchainDataService implements OnModuleInit
                         .add(transaction.decoded.amount1Out);
                 }
 
-                if (result.length === limit) offset += limit;
-                else end = true;
+                if (result.length === limit) { offset += limit; }
+                else { end = true; }
             }
 
             this.pairs[pairAddress] = {
