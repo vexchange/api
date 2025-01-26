@@ -16,9 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Read .nvmrc
+        id: nvmrc
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
       - uses: actions/setup-node@v1
         with:
-          node-version: 16.10
+          node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
       - name: 📦 installing packages
         run: npm ci
       - name: ⚙️ building...
