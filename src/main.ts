@@ -4,7 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify";
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "@src/app.module";
-import { fastifyHelmet } from "fastify-helmet";
+import fastifyHelmet from "@fastify/helmet";
 import { writeFileSync } from "fs";
 
 async function bootstrap()
