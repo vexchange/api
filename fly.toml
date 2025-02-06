@@ -1,5 +1,5 @@
 app = 'vexchange-api'
-primary_region = 'sin'
+primary_region = 'sjc'
 
 [build]
 
